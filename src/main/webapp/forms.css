@@ -1,0 +1,29 @@
+/*
+    Form styles.
+*/
+
+/*
+    Top Advertisers Form
+    topAdvertisersForm.html
+*/
+
+#top-advertisers-form {
+    width: 100%;
+}
+
+#top-advertisers-form > .field {
+    display: inline-block;
+}
+
+#top-advertisers-form > .filter1 {
+    width: 300px;
+}
+#top-advertisers-form > .filter2 {
+    width: 400px;
+}
+#top-advertisers-form > .filter3 {
+    width: 300px;
+}
+#top-advertisers-form > .filter4 {
+    width: 164px;
+}

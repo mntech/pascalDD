@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+      version="3.0">
+  <display-name>Agora Scraper</display-name>
+
+  <session-config>
+    <!-- 48 hours -->
+    <session-timeout>2800</session-timeout>
+  </session-config>
+
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>/WEB-INF/applicationContext.xml,/WEB-INF/web-servlet.xml,/WEB-INF/web-security.xml,/WEB-INF/scraper-scheduler.xml</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>webAppRootKey</param-name>
+    <param-value>agora_scrape</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>log4jConfigLocation</param-name>
+    <param-value>/WEB-INF/log4j.properties</param-value>
+  </context-param>
+
+  <filter>
+    <filter-name>charsetFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+  </filter>
+
+  <filter>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>charsetFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <listener>
+    <listener-class>
+      org.springframework.web.util.Log4jConfigListener
+    </listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>
+      org.springframework.web.context.ContextLoaderListener
+    </listener-class>
+  </listener>
+
+  <servlet>
+    <servlet-name>web</servlet-name>
+    <servlet-class>
+      org.springframework.web.servlet.DispatcherServlet
+    </servlet-class>
+    <load-on-startup>1</load-on-startup>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value></param-value>
+    </init-param>
+  </servlet>
+
+  <servlet>
+    <servlet-name>imageresizer</servlet-name>
+    <servlet-class>agora.web.ImageResizer</servlet-class>
+    <load-on-startup>1</load-on-startup>
+    <init-param>
+      <param-name>imagePath</param-name>
+      <param-value>/var/lib/tomcat7/essentia/agora_images</param-value>
+    </init-param>
+    <init-param>
+      <param-name>cachePath</param-name>
+      <param-value>/WEB-INF/image_cache</param-value>
+    </init-param>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>web</servlet-name>
+    <url-pattern>/</url-pattern>
+<!--
+    <url-pattern>*.m</url-pattern>
+    <url-pattern>/bs/search.m/*</url-pattern>
+    <url-pattern>/bs/editor/editors-docket-drilldown.m/*</url-pattern>
+-->
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>imageresizer</servlet-name>
+    <url-pattern>/imageresizer</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.css</url-pattern>
+    <url-pattern>*.js</url-pattern>
+    <url-pattern>*.png</url-pattern>
+    <url-pattern>*.jpg</url-pattern>
+    <url-pattern>*.jpeg</url-pattern>
+    <url-pattern>*.gif</url-pattern>
+    <url-pattern>*.ico</url-pattern>
+    <url-pattern>*.txt</url-pattern>
+    <url-pattern>*.swf</url-pattern>
+    <url-pattern>/adimages/*</url-pattern>
+  </servlet-mapping>
+
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+
+</web-app>
+
