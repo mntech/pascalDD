@@ -12,6 +12,7 @@
       <li><a href="adminReportImageList.m?startImage=0">Image List</a></li>
       <li><a href="adminReportOverview.m">System Statistics</a></li>
       <li><a href="adminReportMisc.m">Ad-Hoc Reports</a></li>
+      <li><a href="manage-permission">Manage Permission</a></li>
       <li><form action="adminReportViewImage.m">View Image number: <input type="text" name="image_num"/><button type="submit">View</button></form></li>
       <li><form action="adminReportUpdateWelcomeText.m">
 	  Update welcome text: <textarea rows="10" cols="50" name="welcome_text">${welcomeText}</textarea>
