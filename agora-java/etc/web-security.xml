@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:sec="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+			   http://www.springframework.org/schema/security
+			   http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <sec:http pattern="/**/*.ico" security="none"/>
+    <sec:http pattern="/**/*.css" security="none"/>
+    <sec:http pattern="/**/*.js" security="none"/>
+    <sec:http pattern="/**/*.png" security="none"/>
+    <sec:http pattern="/**/*.gif" security="none"/>
+    <sec:http auto-config="true" use-expressions="true">
+   
+    <sec:intercept-url pattern="/adimages/**" access="permitAll"/>
+    <sec:intercept-url pattern="/login.m*" access="permitAll"/>
+    <sec:intercept-url pattern="/tos.m*" access="permitAll"/>
+    <sec:intercept-url pattern="/demoRecentImages.m*" access="permitAll"/>
+    <sec:intercept-url pattern="/imageresizer*" access="permitAll"/>
+    <sec:intercept-url pattern="/admin**" access="hasAnyRole('Agora_Admin')"/>
+    <sec:intercept-url pattern="/bs/editor/**" access="hasAnyRole('BrandScope_EditorsDocket')"/>
+    <sec:intercept-url pattern="/bs/**" access="hasAnyRole('BrandScope_EditorsDocket')"/>
+    <sec:intercept-url pattern="/**" access="hasAnyRole('Agora_Admin','Agora_Search','Agora_Search+')" />
+    <!-- http://static.springsource.org/spring-security/site/docs/3.0.x/reference/appendix-namespace.html#nsa-form-login -->
+    <sec:form-login login-page="/login.m"
+		    default-target-url="/welcome.m"
+		    always-use-default-target="false"/>
+    <sec:logout logout-url="/logout"
+		logout-success-url="/login.m" />
+	<sec:expression-handler ref="webExpressionHandler"/>	
+  </sec:http>
+
+  <sec:authentication-manager>
+    <sec:authentication-provider user-service-ref="userDetailsService"/>
+  </sec:authentication-manager>
+  <sec:global-method-security pre-post-annotations="enabled" >
+        <sec:expression-handler ref="expressionHandler"/>
+  </sec:global-method-security>
+
+  <bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+        <property name="permissionEvaluator" ref="permissionEvaluator"/>
+  </bean>
+  
+  <!--Thanks to  http://forum.spring.io/forum/spring-projects/security/97058-haspermission-in-sec-authorize -->
+  <bean id="webExpressionHandler" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler">
+        <property name="permissionEvaluator" ref="permissionEvaluator"/>
+  </bean>
+</beans>

@@ -1,0 +1,169 @@
+<project name="agora" basedir="." default="build">
+  <property environment="env"/>
+
+  <path id="cp">
+    <fileset dir="lib"><include name="**/*.jar"/></fileset>
+  </path>
+
+  <target name="clean">
+    <delete dir="build"/>
+  </target>
+
+  <target name="init">
+    <condition property="hasBrandscope">
+      <available file="brandscope" type="dir"/>
+    </condition>
+    <mkdir dir="build"/>
+    <mkdir dir="build/WEB-INF"/>
+    <mkdir dir="build/WEB-INF/classes"/>
+    <mkdir dir="build/WEB-INF/lib"/>
+    <mkdir dir="build/WEB-INF/freemarker"/>
+    <mkdir dir="build/WEB-INF/image_cache"/>
+    <copy todir="build/WEB-INF">
+      <fileset file="etc/applicationContext.xml"/>
+      <fileset file="etc/scraper-scheduler.xml"/>
+      <fileset file="etc/web.xml"/>
+      <fileset file="etc/web-security.xml"/>
+      <fileset file="etc/web-servlet.xml"/>
+      <fileset file="etc/log4j.properties"/>
+    </copy>
+    <!--
+    <delete file="build/WEB-INF/classes/app.properties"/>
+    -->
+    <copy tofile="build/WEB-INF/classes/app.properties">
+      <fileset file="etc/app.windows.properties"/>
+    </copy>
+    <copy todir="build/WEB-INF/classes">
+      <fileset file="src/jsfetch.st"/>
+      <fileset dir="src">
+	<include name="**/*.sql"/>
+      </fileset>
+    </copy>
+    <copy todir="build/WEB-INF/lib" flatten="true">
+      <fileset dir="lib">
+      	<exclude name="servlet-api.jar"/>
+      </fileset>
+    </copy>
+    <copy todir="build/WEB-INF/freemarker">
+      <fileset dir="freemarker"/>
+    </copy>
+    <delete file="build/README"/>
+    <copy todir="build">
+      <fileset dir="html">
+	<include name="**/*.js"/>
+	<include name="**/*.css"/>
+	<include name="**/*.png"/>
+	<include name="**/*.gif"/>
+	<include name="**/*.html"/>
+	<include name="**/*.ico"/>
+      </fileset>
+    </copy>
+
+    <copy tofile="build/WEB-INF/freemarker/search.ftl"
+	  file="html/new-search.html"/>
+    <copy tofile="build/WEB-INF/freemarker/searchResults.ftl"
+	  file="html/new-search_results.html"/>
+    <copy tofile="build/WEB-INF/freemarker/tileAndCompareResults.ftl"
+	  file="html/new-tilecomparecreative.html"/>
+    <copy tofile="build/WEB-INF/freemarker/login.ftl"
+	  file="html/new-login.html"/>
+    <copy tofile="build/WEB-INF/freemarker/domainSet.ftl"
+	  file="html/new-domainsets.html"/>
+    <copy tofile="build/WEB-INF/freemarker/header.ftl"
+	  file="html/header.html"/>
+    <copy tofile="build/WEB-INF/freemarker/footer.ftl"
+	  file="html/footer.html"/>
+    <copy tofile="build/WEB-INF/freemarker/premiumPopin.ftl"
+	  file="html/premiumPopin.html"/>
+    <copy tofile="build/WEB-INF/freemarker/help.ftl"
+	  file="html/new-help.html"/>
+    <copy tofile="build/WEB-INF/freemarker/welcome.ftl"
+	  file="html/welcome.html"/>
+    <copy tofile="build/WEB-INF/freemarker/demoRecentImages.ftl"
+	  file="html/new-demoRecentImages.html"/>
+    <copy tofile="build/WEB-INF/freemarker/adDrilldown.ftl"
+	  file="html/new-placementdetailmetric.html"/>
+    <copy tofile="build/WEB-INF/freemarker/topAdvertisers.ftl"
+	  file="html/topAdvertisers.html"/>
+    <copy tofile="build/WEB-INF/freemarker/topAdvertisersInput.ftl"
+	  file="html/topAdvertisersInput.html"/>
+    <copy tofile="build/WEB-INF/freemarker/topAdvertisersForm.ftl"
+	  file="html/topAdvertisersForm.html"/>
+    <copy tofile="build/WEB-INF/freemarker/missingAdvertisers.ftl"
+	  file="html/missingAdvertisers.html"/>
+    <copy tofile="build/WEB-INF/freemarker/missingAdvertisersForm.ftl"
+	  file="html/missingAdvertisersForm.html"/>
+    <copy tofile="build/WEB-INF/freemarker/newCreative.ftl"
+	  file="html/newCreative.html"/>
+    <copy tofile="build/WEB-INF/freemarker/newCreativeForm.ftl"
+	  file="html/newCreativeForm.html"/>
+    <copy tofile="build/WEB-INF/freemarker/tos.ftl"
+	  file="html/tos.html"/>
+    <copy tofile="build/WEB-INF/freemarker/timelineResults.ftl"
+	  file="html/timelineResults.html"/>
+  </target>
+
+  <target name="build" depends="init, build-brandscope">
+    <!-- Agora -->
+    <javac
+       srcdir="src"
+       destdir="build/WEB-INF/classes"
+       debug="on"
+       classpathref="cp">
+      <include name="**/*.java"/>
+    </javac>
+    <touch file="build/WEB-INF/web.xml"/>
+  </target>
+
+  <!--***************************************************
+   !
+   !   Brandscope build
+   !
+   !**************************************************-->
+  <target name="init-brandscope" depends="init" if="hasBrandscope">
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/jquery-ui.css"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/jquery-ui.min.js"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/brandscope.css"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/brandscope-sample.jpg"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/brandscope-sample-shrunk.jpg"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/brandscope-sample-shrunk480.jpg"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/brandscope_white_favicon.ico"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/logo_brandscope_large.png"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/user.png"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/ui-icons_222222_256x240.png"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/ui-icons_2e83ff_256x240.png"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/ui-icons_454545_256x240.png"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/ui-icons_888888_256x240.png"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/ui-icons_cd0a0a_256x240.png"/>
+    <copy todir="build" file="brandscope/brandscope-web/src/main/webapp/resources/domains.png"/>
+    <copy todir="build/WEB-INF">
+      <fileset dir="brandscope/brandscope-web/src/main/webapp/WEB-INF"
+	       includes="defs/*, layouts/*, tiles/*, tiles/editor/*, views/*"/>
+    </copy>
+  </target>
+
+  <target name="build-brandscope" depends="init-brandscope" if="hasBrandscope">
+    <javac
+	srcdir="brandscope/brandscope-web/src/main/java"
+	destdir="build/WEB-INF/classes"
+	debug="on"
+	classpathref="cp">
+	<include name="com/**/*.java"/>
+	<exclude name="**/persistence/*.java"/>
+    </javac>
+  </target>
+
+  <!-- **************************************** -->
+  <target name="run-scraper-daemon" depends="build">
+    <java
+       classpathref="cp"
+       classname="agora.scraper.ScraperDaemonLauncher"
+       fork="true">
+      <classpath>
+	<pathelement path="build/WEB-INF/classes"/>
+      </classpath>
+      <arg line="${RUNOPTS}"/>
+    </java>
+  </target>
+
+</project>

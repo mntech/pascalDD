@@ -1,0 +1,6 @@
+* Suite 0 starting
+* Opening http://www.apcmag.net/Content/Default.aspx
+* Scraping http://www.apcmag.net/Content/Default.aspx
+* Suite 0 complete
+* Writing 1 items
+* Saved 1 items
