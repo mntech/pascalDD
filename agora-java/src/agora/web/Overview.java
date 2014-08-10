@@ -20,6 +20,7 @@ import org.springframework.web.servlet.*;
 import org.springframework.web.servlet.view.InternalResourceView;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.ui.ModelMap;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @Controller
