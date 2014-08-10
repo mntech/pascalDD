@@ -44,6 +44,7 @@ public class Overview {
     }
 
     @RequestMapping(value="/welcome.m")
+    @PreAuthorize("hasPermission(#user, 'welcome.m')")
     public ModelAndView welcome(HttpSession session) {
 	Map m = new HashMap();
 	m.put("welcomeText", data.getWelcomeText());

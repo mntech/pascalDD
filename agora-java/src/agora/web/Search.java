@@ -1,26 +1,34 @@
 package agora.web;
 
-import agora.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
-import javax.servlet.http.*;
-import javax.servlet.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
-import org.springframework.web.servlet.*;
-import org.springframework.ui.ModelMap;
-import org.springframework.security.core.context.SecurityContextHolder;
+import agora.Data;
+import agora.DataSearch;
+import agora.User;
+import agora.UserDetailsService;
+import agora.Util;
 
 @Controller
 public class Search {
@@ -153,6 +161,7 @@ public class Search {
     /********************************************************************/
 
     @RequestMapping(value="/keywordSearch.m")
+    @PreAuthorize("hasPermission(#user, 'keywordSearch.m')")
     public ModelAndView keywordSearch(HttpSession session) {
 	Map m = new HashMap();
 	m.put("domainList", data.getHostList());
@@ -162,6 +171,7 @@ public class Search {
     }
 
     @RequestMapping(value="/tileAndCompareSearch.m")
+    @PreAuthorize("hasPermission(#user, 'tileAndCompareSearch.m')")
     public ModelAndView tileAndCompareSearch(HttpSession session) {
 	Map m = new HashMap();
 	m.put("domainList", data.getHostList());
@@ -171,6 +181,7 @@ public class Search {
     }
 
     @RequestMapping(value="/placementDetailAndMetricSearch.m")
+    @PreAuthorize("hasPermission(#user, 'placementDetailAndMetricSearch.m')")
     public ModelAndView placementDetailAndMetricSearch(HttpSession session) {
 	Map m = new HashMap();
 	m.put("domainList", data.getHostList());
@@ -180,6 +191,7 @@ public class Search {
     }
 
     @RequestMapping(value="/timelineSearch.m")
+    @PreAuthorize("hasPermission(#user, 'timelineSearch.m')")
     public ModelAndView timelineSearch(HttpSession session) {
 	Map m = new HashMap();
 	m.put("domainList", data.getHostList());
@@ -189,6 +201,7 @@ public class Search {
     }
 
     @RequestMapping(value="/adDrilldown.m")
+    @PreAuthorize("hasPermission(#user, 'adDrilldown.m')")
     public ModelAndView adDrilldown(@RequestParam Integer imageNum,
 				    HttpSession session) {
 	Map m = new HashMap();
@@ -520,6 +533,7 @@ public class Search {
     }
 
     @RequestMapping(value="/topAdvertisers.m")
+    @PreAuthorize("hasPermission(#user, 'topAdvertisers.m')")
     public ModelAndView topAdvertisers(@RequestParam(required=false) Integer startMonth,
 				       @RequestParam(required=false) Integer startYear,
 				       @RequestParam(required=false) Integer endMonth,
@@ -605,6 +619,7 @@ public class Search {
     }
 
     @RequestMapping(value="/missingAdvertisersInput.m")
+    @PreAuthorize("hasPermission(#user, 'missingAdvertisersInput.m')")
     public ModelAndView missingAdvertisersInput(HttpSession session) {
 	session.setAttribute("tab", "missingAdvertisersTab");
 
@@ -614,6 +629,7 @@ public class Search {
     }
 
     @RequestMapping(value="/newCreative.m")
+    @PreAuthorize("hasPermission(#user, 'newCreative.m')")
     public ModelAndView newCreative(@RequestParam(required=false, defaultValue="1month") String period,
 				    @RequestParam(required=false, defaultValue="0") Integer offset,
 				    @RequestParam(required=false, defaultValue="false") Boolean removeHouseAds,
