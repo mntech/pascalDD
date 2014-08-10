@@ -39,12 +39,15 @@ public class EmrPermissionEvaluator  implements PermissionEvaluator  {
 			}
 		}
 		
-		/*for(Role _r : user.getRoles()) {
+		for(Role _r : user.getRoles()) {
 			List<Actions> actions = _r.getPermisions();
-			if(actions.contains(new Actions(permission.toString()))) {
-				return true;
+			for(Actions _a : actions) {
+				if(_a.getActionUrl().equalsIgnoreCase(permission.toString())) {
+					return true;
+				}
 			}
-		}*/
+			
+		}
 			
 		return false;
 	}
