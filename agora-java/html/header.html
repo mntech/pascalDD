@@ -4,10 +4,9 @@
   
   <div id="userinfo">
 
-
-    <@sec.authorize access="hasPermission('anything', 'adminReportList.m')">
-		<a id="button_admin_reports" href="adminReportList.m">Admin Reports</a>
-    </@sec.authorize >
+    <@sec.authorize ifAnyGranted="Agora_Admin">
+      <a id="button_admin_reports" href="adminReportList.m">Admin Reports</a>
+    </@sec.authorize>
 
     <img src="user.png" style="width: 12px; height: auto; margin-right: 2px;"> Logged in as
     <a href="#" title="Logged in as <@sec.authentication property='principal.firstName' /> <@sec.authentication property='principal.lastName' />">
@@ -45,18 +44,9 @@
 
 <ul class="navigation">
   <li id="homeTab" style="margin-right: 20px;"><a style="display: block;" href="welcome.m"><img style="display: block; max-height: 17px; padding: 5px 0;" src="tab-logo.png" /></a></li>
-  
-  <@sec.authorize access="hasPermission('anything', 'keywordSearch.m')">
-  	<li id="keywordExplorerTab"><a href="keywordSearch.m">Keyword Explorer</a></li>
-  </@sec.authorize>
-  <@sec.authorize access="hasPermission('anything', 'tileAndCompareSearch.m')">
-    <li id="tileAndCompareTab"><a href="tileAndCompareSearch.m">Tile & Compare Creative</a></li>
-  </@sec.authorize>
-  
-  <@sec.authorize access="hasPermission('anything', 'domainSet.m')">
-  	<li id="domainSetsTab"><a href="domainSet.m">Domain Set</a></li>
-  </@sec.authorize>
-  
+  <li id="keywordExplorerTab"><a href="keywordSearch.m">Keyword Explorer</a></li>
+  <li id="tileAndCompareTab"><a href="tileAndCompareSearch.m">Tile & Compare Creative</a></li>
+  <li id="domainSetsTab"><a href="domainSet.m">Domain Set</a></li>
   <li style="width: 10px; border: 0; border-right: 1px solid #000"></li>
 </ul>
 
@@ -65,23 +55,13 @@
 <#assign prem3="premium.m">
 <#assign prem4="premium.m">
 <#assign prem5="premium.m">
-
-	<@sec.authorize access="hasPermission('anything', 'placementDetailAndMetricSearch.m')">
-		<#assign prem1="placementDetailAndMetricSearch.m">
-    </@sec.authorize >
-    <@sec.authorize access="hasPermission('anything', 'newCreative.m')">
-		<#assign prem2="newCreative.m">
-    </@sec.authorize >
-    <@sec.authorize access="hasPermission('anything', 'topAdvertisers.m')">
-		<#assign prem3="topAdvertisers.m">
-    </@sec.authorize >
-    <@sec.authorize access="hasPermission('anything', 'missingAdvertisersInput.m')">
-		<#assign prem4="missingAdvertisersInput.m">
-    </@sec.authorize >
-    <@sec.authorize access="hasPermission('anything', 'timelineSearch.m')">
-		<#assign prem5="timelineSearch.m">
-    </@sec.authorize >
-    
+<@sec.authorize ifAnyGranted="Agora_Admin,Agora_Search+">
+    <#assign prem1="placementDetailAndMetricSearch.m">
+    <#assign prem2="newCreative.m">
+    <#assign prem3="topAdvertisers.m">
+    <#assign prem4="missingAdvertisersInput.m">
+    <#assign prem5="timelineSearch.m">
+</@sec.authorize>
 
 <ul class="navigation premium">
     <li id="placementDetailAndMetricTab">

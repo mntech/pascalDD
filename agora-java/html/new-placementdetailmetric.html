@@ -18,7 +18,7 @@
 	
 	<div id="page_content">
 
-        <@sec.authorize access="hasPermission('anything','add-drilldown-section')">
+        <@sec.authorize ifAnyGranted="Agora_Admin,Agora_Search+">
 
 		<div id="internal">
 		<div style="padding: 5px; background-color: #ccc; margin-bottom: 15px;">

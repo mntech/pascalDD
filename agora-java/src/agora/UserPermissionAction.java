@@ -8,8 +8,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-@Entity
+/*
+ * This class is no longer used, This class is made to have ACL permission. 
+ * Other code this is not in user but commented is in User.java
+ */
+//@Entity
 @Table(name="user_action")
 public class UserPermissionAction {
 

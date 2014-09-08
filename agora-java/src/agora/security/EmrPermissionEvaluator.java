@@ -24,22 +24,9 @@ public class EmrPermissionEvaluator  implements PermissionEvaluator  {
 	@Override
 	public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
 		User user = ((User)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-		List<UserPermissionAction> permissions = user.getHiddenpermisions();
 		
-		for(UserPermissionAction _p : permissions) {
-			if(_p.getAction().getActionUrl().equalsIgnoreCase(permission.toString())) {
-				return false;
-			}
-		}
 		
-		permissions = user.getAllowedpermisions();
-		for(UserPermissionAction _p : permissions) {
-			if(_p.getAction().getActionUrl().equalsIgnoreCase(permission.toString())) {
-				return true;
-			}
-		}
-		
-		for(Role _r : user.getRoles()) {
+		for(Role _r : user.getCompany().getRoles()) {
 			List<Actions> actions = _r.getPermisions();
 			for(Actions _a : actions) {
 				if(_a.getActionUrl().equalsIgnoreCase(permission.toString())) {

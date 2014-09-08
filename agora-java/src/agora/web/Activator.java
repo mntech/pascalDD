@@ -1,28 +1,29 @@
 package agora.web;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import agora.Actions;
 import agora.Json;
 import agora.Role;
 import agora.User;
 import agora.UserDetailsService;
-import agora.UserPermissionAction;
+import agora.dao.CompanyDao;
+import agora.model.Company;
 
 @Controller
 public class Activator {
@@ -30,29 +31,382 @@ public class Activator {
 	@Autowired
     private UserDetailsService userDetailsService;
 	
+	@Autowired
+    private CompanyDao companyDao;
+	
 	
 	@RequestMapping(value="/manage-permission", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('Agora_Admin')")
 	//@ResponseBody 
 	@Transactional
 	public  String getpermissions(ModelMap map) {
-		List<User> users = userDetailsService.getAllUser();
 		List<Role> roles = userDetailsService.getAllRole();
 		List<Actions> actions = userDetailsService.getAllActions();
 		map.addAttribute("rolesAsJson", Json.stringify(Json.toJson(buildRolesJson(roles, actions))));
-		map.addAttribute("usersAsJson", Json.stringify(Json.toJson(buildUserJson(users, actions, roles))));
 		
 		return "manage-permission";
     }
 	
-	@RequestMapping(value="/user-permission/{mode}/{user}/{permission}", method=RequestMethod.POST)
+	@RequestMapping(value="/get-companies", method=RequestMethod.GET)
 	@PreAuthorize("hasRole('Agora_Admin')")
+	@ResponseBody 
+	@Transactional
+	public  List<ByCompany> getCompanies(ModelMap map) {
+		 return buildCompanyJson(companyDao.getCompanyList(), userDetailsService.getAllRole());
+	}
+	
+	
+	private List<ByCompany> buildCompanyJson(List<Company> companies, List<Role> roles) {
+		List<ByCompany> byCompanies = new ArrayList<Activator.ByCompany>();	
+		for(Company _c: companies) {
+			ByCompany byCompany = new ByCompany();
+			byCompany.i = _c.getId();
+			if(_c.getDeleted() != null){
+				byCompany.a = _c.getDeleted().toString();
+			}else{
+				byCompany.a = "1";
+			}
+				
+			byCompany.n = _c.getName();
+			byCompany.ph = _c.getPhone();
+			try{
+				if(_c.getCreateDate() != null){
+		    	 String dt = new SimpleDateFormat("MM/dd/yyyy").format(_c.getCreateDate());
+		    	 if(dt != null){
+		    		 byCompany.cr = dt.toString();
+		    	 }
+				}
+		    } catch(Exception e) {
+		    	e.printStackTrace();	
+		    }
+			byCompany.cp = _c.getContact_name();
+			byCompany.nt = _c.getNotes();
+			byCompany.em = _c.getEmail();
+			byCompany.rs = new ArrayList<HasRole>();
+			for(Role _r : roles) {
+				HasRole role = new HasRole();
+				role.i = _r.id;
+				role.c = 0;
+				role.n = _r.name;
+				if(_c.roles.contains(_r)) {
+					role.c = 1;
+				}
+				byCompany.rs.add(role);
+			}
+			byCompanies.add(byCompany);
+		}
+		return byCompanies;
+	}
+
+
+	@RequestMapping(value="/company-role/{mode}/{company}/{role}", method=RequestMethod.POST)
 	@ResponseBody
-	public  String changeuserpermission(@PathVariable boolean mode, @PathVariable int user, @PathVariable int permission ) {
-		userDetailsService.ChangeUserPermission(mode, user, permission);
+	public  String changeCompanyRole(@PathVariable boolean mode, @PathVariable int company, @PathVariable int role) {
+		userDetailsService.ChangeCompanyRole(mode, company, role);
 		return "";
     }
 	
+	@RequestMapping(value="/get-company/{company}", method=RequestMethod.GET)
+	@ResponseBody
+	public List<CompanyVM> getCompanyDetails(@PathVariable String company) {
+		Company cmps = companyDao.getCompanyByName(company);
+		
+		return null;
+		
+	}
+	@RequestMapping(value="/get-users/{company}", method=RequestMethod.GET)
+	@ResponseBody
+	public  List<UserVM> getCompanyUser(@PathVariable int company) {
+		List<User> users = userDetailsService.getUserByCompany(company);
+		List<UserVM> usersVM = new ArrayList<Activator.UserVM>();
+		
+		for(User u : users) {
+			UserVM userVM = new UserVM();
+			userVM.fn = (u.firstName == null || u.firstName.length() ==0) ? "" : u.firstName;
+			userVM.ln = ((u.lastName == null || u.lastName.length() ==0) ? "" : u.lastName);
+			userVM.e = u.email;
+			userVM.c = u.getCompany().getName();
+			userVM.i = u.id;
+			userVM.n = u.firstName + " " + u.lastName; 
+			if(u.isDeleted() != null){
+				userVM.a = u.isDeleted().toString();
+			}
+			userVM.un = u.username;
+			userVM.pw = u.password;
+			try {
+		    	  String dt = new SimpleDateFormat("MM/dd/yyyy").format( u.getSubStartDate());
+		    	  userVM.sd = dt.toString();
+		    	} catch(Exception e) {
+		    		
+		    	}
+			
+			usersVM.add(userVM);
+		}
+		return usersVM;
+    }
+	
+	@RequestMapping(value="/get-users", method=RequestMethod.GET)
+	@ResponseBody
+	public  List<UserVM> getAllUser() {
+		List<User> users = userDetailsService.getAllUser();
+		List<UserVM> usersVM = new ArrayList<Activator.UserVM>();
+		
+		for(User u : users) {
+			if(u.company != null) {
+				UserVM userVM = new UserVM();
+				userVM.e = u.email;
+				userVM.i = u.id;
+				userVM.fn = (u.firstName == null || u.firstName.length() ==0) ? "" : u.firstName;
+				userVM.ln = ((u.lastName == null || u.lastName.length() ==0) ? "" : u.lastName);
+				userVM.n = userVM.fn + " " + userVM.ln; 
+				userVM.un = u.username;
+				userVM.pw = u.password;
+				if(u.isDeleted() != null){
+					userVM.a = u.isDeleted().toString();
+				}
+				try{
+					if(u.getSubStartDate() != null){
+			    	 String dt = new SimpleDateFormat("MM/dd/yyyy").format( u.getSubStartDate());
+			    	 if(dt != null){
+			    		 userVM.sd = dt;
+			    	 }
+					}
+			    } catch(Exception e) {
+			    	e.printStackTrace();	
+			    }
+				userVM.c = u.getCompany() == null? "" : u.getCompany().getName();
+				usersVM.add(userVM);
+			}
+		}
+		return usersVM;
+    }
+	
+	@RequestMapping(value="/updateCompany/{name}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('Agora_Admin')")
+	@ResponseBody
+	public  String updateCompany(@PathVariable String name, @RequestBody CompanyVM cmp) {
+		System.out.println(cmp.em+"-------");
+		Company comp = companyDao.getCompanyByName(name);
+		comp.setEmail(cmp.em);
+		comp.setPhone(cmp.ph);
+		comp.setContact_name(cmp.cp);
+		comp.setNotes(cmp.nt);
+		/*try {
+	    	  String dt = new SimpleDateFormat("MM/dd/yyyy").format( cmp.cr);
+	    	  comp.setCreateDate(dt);
+	    	} catch(Exception e) {
+	    		
+	    	}*/
+		companyDao.updateCompany(comp);
+		return "Company Updated sucessfully";
+		
+	}
+	@RequestMapping(value="/activeCompany/{id}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('Agora_Admin')")
+	@ResponseBody
+	public  List<UserVM> activateCompany(@PathVariable Integer id) {
+		Company cmp = companyDao.getCompanyById(id);
+		UserVM vm = new UserVM();
+		List<UserVM> userList = new ArrayList<UserVM>();
+		cmp.setDeleted(1);
+		companyDao.updateCompany(cmp);
+		List<User> users = userDetailsService.getUserByCompany(cmp.getId());
+		//Jagbir: If company is made active , User need not to be made active.
+		/*if(users.size() != 0){
+			for(User usr : users) {
+				usr.setDeleted(1);
+				userDetailsService.updateUser(usr);
+				vm = getUser(usr);
+				userList.add(vm);
+			}
+		}*/
+		
+		return userList;
+		
+	}
+	@RequestMapping(value="/deleteCompany/{id}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('Agora_Admin')")
+	@ResponseBody
+	public  List<UserVM> deleteCompany(@PathVariable Integer id) {
+		UserVM vm = new UserVM();
+		List<UserVM> userList = new ArrayList<UserVM>();
+		Company cmp = companyDao.getCompanyById(id);
+		cmp.setDeleted(0);
+		companyDao.updateCompany(cmp);
+		List<User> users = userDetailsService.getUserByCompany(cmp.getId());
+		if(users.size() != 0){
+			for(User usr : users) {
+				usr.setDeleted(0);
+				userDetailsService.updateUser(usr);
+				vm = getUser(usr);
+				userList.add(vm);
+			}
+		}
+		return userList;
+	}
+	
+	@RequestMapping(value="/activeUserOfCompany/{id}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('Agora_Admin')")
+	@ResponseBody
+	public  UserVM activateUserOfCompany(@PathVariable int id) {
+		User usr = userDetailsService.getUserById(id);
+		usr.setDeleted(1);
+		userDetailsService.updateUser(usr);
+		UserVM vm = getUser(usr);
+		return vm;
+	}
+	@RequestMapping(value="/deleteUserOfCompany/{id}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('Agora_Admin')")
+	@ResponseBody
+	public  UserVM deleteUserOfCompany(@PathVariable int id) {
+		User usr = userDetailsService.getUserById(id);
+		usr.setDeleted(0);
+		userDetailsService.updateUser(usr);
+		UserVM vm = getUser(usr);
+		return vm;
+		
+		
+	}	
+	@RequestMapping(value="/saveUser/{id}", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('Agora_Admin')")
+	@ResponseBody
+	public  String saveUser(@PathVariable int id,@RequestBody UserVM user) {
+		User usr = userDetailsService.getUserById( id);
+    	usr.firstName = user.fn;
+    	usr.lastName = user.ln;
+    	usr.password = user.pw;
+    	if(!usr.username.equals(user.un)) {
+    		if(userDetailsService.getUserByUsername(user.un)!=null){
+    			return "Username already in use";
+    		};
+    	}
+    	usr.username = user.un;
+    	usr.email = user.e;
+    	try {
+    	  Date dt = new SimpleDateFormat("MM/dd/yyyy").parse(user.sd);
+    	  usr.setSubStartDate(dt);
+    	} catch(Exception e) {
+    		
+    	}
+    	userDetailsService.updateUser(usr);
+		return "User information updated";
+    }
+	
+	@RequestMapping(value="/saveCompany", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('Agora_Admin')")
+	@ResponseBody
+	public  ByCompany saveCompany(@RequestBody CompanyVM cmp) {
+		
+		if (companyDao.getCompanyByName(cmp.n) != null){
+			return null;
+		}
+		Company comp = new Company();
+		comp.setEmail(cmp.em);
+		comp.setName(cmp.n);
+		comp.setPhone(cmp.ph);
+		comp.setContact_name(cmp.cp);
+		comp.setNotes(cmp.nt);
+		try {
+	    	  Date dt = new SimpleDateFormat("MM/dd/yyyy").parse(cmp.cr);
+	    	  comp.setCreateDate(dt);
+	    	} catch(Exception e) {
+	    		
+	    	}
+		companyDao.saveCompany(comp);
+    	Company c = companyDao.getCompanyByName(cmp.n);
+		ByCompany byCompany = getCompanyStruncture(c);
+	    
+		return byCompany;
+		
+	}
+	public ByCompany getCompanyStruncture(Company cmp){
+		ByCompany byCompany = new ByCompany();
+		byCompany.n = cmp.getName();	
+		byCompany.cp = cmp.getContact_name();
+		try{
+			if(cmp.getCreateDate() != null){
+	    	 String dt = new SimpleDateFormat("MM/dd/yyyy").format(cmp.getCreateDate());
+	    	 if(dt != null){
+	    		 byCompany.cr = dt;
+	    	 }
+			}
+	    } catch(Exception e) {
+	    	e.printStackTrace();	
+	    }
+		byCompany.ph = cmp.getPhone();
+		byCompany.nt = cmp.getNotes();
+		byCompany.em = cmp.getEmail();
+		if(cmp.getDeleted() != null){
+			byCompany.a = cmp.getDeleted().toString();
+		}else{
+			
+		}
+		byCompany.rs = new ArrayList<HasRole>();
+		List<Role> roles = userDetailsService.getAllRole();
+		for(Role _r : roles) {
+			HasRole role = new HasRole();
+			role.i = _r.id;
+			role.c = 0;
+			role.n = _r.name;
+			byCompany.rs.add(role);
+		}
+		byCompany.i = companyDao.getCompanyByName(cmp.getName()).getId();
+		return byCompany;
+	}
+	@RequestMapping(value="/saveUser", method=RequestMethod.POST)
+	@PreAuthorize("hasRole('Agora_Admin')")
+	@ResponseBody
+	public  UserVM saveNewUser(@RequestBody UserVM user) {
+		if(userDetailsService.getUserByUsername(user.un)!=null){
+			return null;
+		};
+		
+		User usr = new User();
+		Company cmp = companyDao.getCompanyByName(user.c);
+		
+    	usr.firstName = user.fn;
+    	usr.lastName = user.ln;
+    	usr.password = user.pw;
+    	usr.username = user.un;
+    	usr.email = user.e;
+    	usr.company = cmp; 
+    	try {
+    	  Date dt = new SimpleDateFormat("MM/dd/yyyy").parse(user.sd);
+    	  usr.setSubStartDate(dt);
+    	} catch(Exception e) {
+    		
+    	}
+    	usr.setNotes(user.nts);
+    	usr.setNotes(user.ct);
+    	userDetailsService.updateUser(usr);
+    	UserVM vm = getUser(usr);
+		return vm;
+    }
+	public UserVM getUser(User u){
+		UserVM userVM = new UserVM();
+		userVM.e = u.email;
+		userVM.i = u.id;
+		userVM.fn = (u.firstName == null || u.firstName.length() ==0) ? "" : u.firstName;
+		userVM.ln = ((u.lastName == null || u.lastName.length() ==0) ? "" : u.lastName);
+		userVM.n = userVM.fn + " " + userVM.ln; 
+		userVM.un = u.username;
+		userVM.pw = u.password;
+		if(u.isDeleted() != null){
+			userVM.a = u.isDeleted().toString();
+		}
+		try{
+			if(u.getSubStartDate() != null){
+	    	 String dt = new SimpleDateFormat("MM/dd/yyyy").format( u.getSubStartDate());
+	    	 if(dt != null){
+	    		 userVM.sd = dt;
+	    	 }
+			}
+	    } catch(Exception e) {
+	    	e.printStackTrace();	
+	    }
+		userVM.c = u.getCompany() == null? "" : u.getCompany().getName();
+		return userVM;
+	}
 	@RequestMapping(value="/user-role/{mode}/{user}/{role}", method=RequestMethod.POST)
 	@PreAuthorize("hasRole('Agora_Admin')")
 	@ResponseBody
@@ -93,60 +447,18 @@ public class Activator {
 		return byRoles;
 	}
 	
-	private List<ByUser> buildUserJson(List<User> users, List<Actions> actions, List<Role> roles) {
-		List<ByUser> byUsers = new ArrayList<Activator.ByUser>(); 
-		for(User _u : users) {
-			ByUser byUser = new ByUser();
-			byUser.id = _u.id;
-			byUser.un = (_u.getFirstName()==null?"":_u.getFirstName()) + " " + (_u.getLastName()==null?"":_u.getLastName()) + "(" + _u.username + ")";
-			byUser.hasActions = new ArrayList<HasAction>();
-			byUser.hasRoles = new ArrayList<HasRole>();
-			
-			for(Role _r : roles) {
-				HasRole role = new HasRole();
-				role.id = _r.getId();
-				role.rn = _r.name;
-				role.st = 0;
-				if(_u.getRoles().contains(_r)) {
-					role.st = 1;
-				}
-				byUser.hasRoles.add(role);
-			}
-			for(Actions _a : actions) {
-				HasAction hasAction = new HasAction();
-				hasAction.id = _a.getId();
-				hasAction.an = _a.getActionName();
-				hasAction.st = -1;
-				
-				if(_u.getHiddenpermisions() != null)
-				for(UserPermissionAction _upa : _u.getHiddenpermisions()) {
-					if(_upa.getAction().equals(_a)) {
-						hasAction.st = 0;
-						break;
-					}
-				}
-				
-				if(_u.getAllowedpermisions() != null)
-				for(UserPermissionAction _upa : _u.getAllowedpermisions()) {
-					if(_upa.getAction().equals(_a)) {
-						hasAction.st = 1;
-						break;
-					}
-				}
-				
-				byUser.hasActions.add(hasAction);
-			}
-			byUsers.add(byUser);
-		}
-		
-		return byUsers;
-	}
 	
-	class ByUser {
-		public int id;
-		public String un;
-		public List<HasAction> hasActions;
-		public List<HasRole> hasRoles;
+	
+	class ByCompany {
+		public String a;
+		public String em;
+		public String nt;
+		public String cp;
+		public String cr;
+		public String ph;
+		public int i;
+		public String n;
+		public List<HasRole> rs; 
 	}
 	
 	class ByRole {
@@ -162,8 +474,40 @@ public class Activator {
 	}
 	
 	class HasRole {
-		public int st;
-		public int id;
-		public String rn;
+		public int c;
+		public int i;
+		public String n;
+	}
+	
+	@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+	static class UserVM {
+		public String ca;
+		public String a;
+		public String ct;
+		public String nts;
+		public UserVM() {}
+		public int i;
+		public String n;
+		public String e;
+		public String un;
+		public String ln;
+		public String fn;
+		public String pw;
+		public String c;
+		public String sd;
+	}
+	
+	@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+	static class CompanyVM {
+		public String cn;
+		public String n;
+		public CompanyVM() {}
+		public int ci;
+		public String ph;
+		public String em;
+		public String cr;
+		public String nt;
+		public String cp;
+		public String a;
 	}
 }

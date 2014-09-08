@@ -17,6 +17,7 @@ public class UserQuery implements java.io.Serializable {
         this.id = id;
     }
     
+    @Column(name="query_string")
     public String getQuery() { return query; }
     
     public void setQuery(String query) {

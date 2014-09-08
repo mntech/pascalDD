@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
@@ -49,6 +48,35 @@ public class UserDetailsService implements org.springframework.security.core.use
     }
 
     public void saveUser(User u) {
+    	sf.getCurrentSession().save(u);
+    }
+    
+    public void updateUser(User u) {
+    	
+    	sf.getCurrentSession().saveOrUpdate(u);
+	}
+    
+    
+    
+    /*public void deleteUser(User user) {
+    	user.setDeleted(2);
+    	sf.getCurrentSession().saveOrUpdate(user);
+    }*/
+    
+    public User getUserById(int id) {
+    	List<User> users = sf.getCurrentSession().createQuery("from User where id = :id")
+        	    .setInteger("id", id).list();
+    	return users.get(0);
+    }
+    
+    public User getUserByUsername(String username) {
+    	List<User> users = sf.getCurrentSession().createQuery("from User where username = :username")
+        	    .setString("username", username).list();
+    	if(!users.isEmpty()){
+    		return users.get(0);
+    	}else{
+    		return null;
+    	}
     }
 
     public List<Map<String, Integer>> getEditorsDocketQueryCounts() {
@@ -97,7 +125,10 @@ public class UserDetailsService implements org.springframework.security.core.use
 		
 	}
 	
-	public void ChangeUserPermission(boolean mode, int user, int permission) {
+	/*
+	 * This method is written for ACL  
+	 */
+	/*public void ChangeUserPermission(boolean mode, int user, int permission) {
 		
 		int count = jt.queryForInt("select count(*) from user_action  where user_id = ? and action_id = ?",
 				new Object[] {user, permission});
@@ -115,7 +146,7 @@ public class UserDetailsService implements org.springframework.security.core.use
 				      new Object[] {user, permission, mode?"S":"H"});
 		}
 		
-	}
+	}*/
 	
 	public void ChangeUserRole(boolean mode, int user, int role) {
 		
@@ -133,4 +164,30 @@ public class UserDetailsService implements org.springframework.security.core.use
 		}
 		
 	}
+	
+	public void ChangeCompanyRole(boolean mode, int company, int role) {
+		
+		int count = jt.queryForInt("select count(*) from company_role  where comp_id = ? and role_id = ?",
+				new Object[] {company, role});
+		
+		if(count == 0 && mode == true) {
+			jt.update("insert into company_role (role_id, comp_id) values (?,?)",
+				      new Object[] {role, company});
+		}
+		
+		if(count == 1 && mode == false) {
+			jt.update("delete from company_role where role_id = ? and comp_id = ?",
+					  new Object[] {role, company});
+		}
+		
+	}
+
+	public List<User> getUserByCompany(int company) {
+		List<User> users = sf.getCurrentSession().createQuery("from User where comp_id = :company").
+				setInteger("company", company).list();
+		return users;
+		
+	}
+
+	
 }
