@@ -56,7 +56,7 @@
 	<div class="tabs_holder">
 		<ul>
   			<li><a class="tab_selected" href="#role-tab">Define Roles</a></li>
-  			<li><a href="#company-tab" >Manage Company</a></li>
+  			<li><a href="#company-tab" >Manage Subscription</a></li>
   			<li><a href="#user-tab" >Manage User</a></li>
  		</ul>
  		
@@ -66,21 +66,22 @@
  				<table class="table table-striped table-hover" template-header="templates.header.user" ng-table="tableUsers" show-filter="true" style="background-color: #eee;">
  					<tbody ng-repeat="c in $data">
  					  <tr >
- 						<td data-title="'Name'" style="border:1pt solid black;width: 10%;" filter="{ 'n': 'text'}" >
+ 						<td  ng-class="c.a == 0 ? 'redColor': 'Color' " data-title="'Name'" style="border:1pt solid black;width: 10%;" filter="{ 'n': 'text'}" >
  							{{c.n}}
+ 							<div style = "width = 100%;">
+ 							<a class="glyphicon glyphicon-edit" href="" ng-click="setEditUserCtx(c)" style="text-decoration: none;color : purple;"/> Edit</a>
+ 							<a ng-if="c.a == 1" class="glyphicon glyphicon-trash" href="" ng-click="deleteUser(c.i)" style="text-decoration: none;color : purple; margin-left: 10%;"/> Delete</a>
+ 							<a ng-if="c.a == 0" class="glyphicon glyphicon-ok" href="" ng-click="activeUser(c.i)" style="text-decoration: none;color : purple; margin-left: 10%;"/> Activate</a>
+ 							</div>
  						</td>
  						<td data-title="'Email'"  style="border:1pt solid black;width: 10%;">
  							{{c.e}}
  						</td>
- 						<td data-title="'Company'"  style="border:1pt solid black;width: 10%;">
+ 						<td data-title="'Company'"  style="border:1pt solid black;width: 10%;" filter="{ 'c': 'text'}">
  							{{c.c}}
  						</td>
  						<td data-title="'Credentials'"  style="border:1pt solid black;width: 10%;">
  							{{c.un}} / {{c.pw}} 
- 						</td>
- 						<td data-title="'Action'"  style="border:1pt solid black;width: 10%;">
- 							<button class="btn btn-primary" ng-click="setEditUserCtx(c)" >Edit</button>
- 							<button class="btn btn-danger" ng-click="deleteUser(c.i)" >Delete</button>
  						</td>
  					  </tr>
  					  <tr ng-show="editUserId == c.i" ng-if="editUserId == c.i">
@@ -212,7 +213,6 @@
  				</div> 
  			</div> 
  		</th>
- 		<td style="width:1%"><button ng-click="onUserAdd()" class="btn btn-success  btn-sm" style="margin-left: -90px;margin-bottom:5px">Add User</button></td> 
  	</tr>
  </script>
  
@@ -285,6 +285,13 @@
 		    					<label>Start Date:</label>
 		    					<input ng-model="editUser.sd" data-provide="datepicker" data-date-format="mm/dd/yyyy">
 	 						</div>
+	 						<div style="float: left;margin-left: 5px;" ng-show = "editUser.c == 'essentia'">
+								<div style="float: left; font-size:11px;margin-left: 2px;" 
+								ng-repeat="r in editUser.roles">
+									<input type="checkbox"  ng-checked="{{r.c == 1}}"
+									 ng-click="userRoleChange($event, r)"> {{r.n}}
+								</div>
+							</div>
 	 						<div ng-if="mode=='add'" style="float: left;margin-right: 5px; width: 100%;">
 	 							<label></label>
 	 							<button class="btn btn-success" ng-click="userUpdate();closeThisDialog()">Update</button>
@@ -292,6 +299,9 @@
  							    <button ng-hide="{{editUser.a != '0' }} || {{editUser.ca == '0' }} " class="btn btn-danger" ng-click="activeUserOfCompany(editUser);closeThisDialog()" >Active</button>
  							    <button class="btn btn-dafault" ng-click="resetEditUserId();closeThisDialog()" >Cancel</button>
 	 						</div>
+	 						
+	 						
+							
 	 						
  </script>   
  
@@ -350,11 +360,19 @@
 		    					<label>Start Date:</label>
 		    					<input ng-model="editUser.sd" data-provide="datepicker" data-date-format="mm/dd/yyyy">
 	 						</div>
+	 						<div style="margin-left: 5px;" ng-show = "editUser.c == 'essentia'">
+								
+								<div style="float: left; font-size:11px;margin-left: 2px;" ng-repeat="r in roles">
+									<input type="checkbox"  ng-click="userRoleChangeForNewUser($event, r.id)"> {{r.rn}}
+								</div>
+								
+							</div>
 	 						<div ng-if="mode=='add'" style="float: left;margin-right: 5px; width: 100%;">
 	 							<label></label>
 	 							<button class="btn btn-success" ng-click="onUserSave();closeThisDialog()">Save</button>
  							    <button class="btn btn-dafault" ng-click="resetEditUserId();closeThisDialog()" >Cancel</button>
 	 						</div>
+	 						
 	 						
 	 						
  </script>   

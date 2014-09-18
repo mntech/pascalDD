@@ -22,8 +22,8 @@ import agora.Json;
 import agora.Role;
 import agora.User;
 import agora.UserDetailsService;
-import agora.dao.CompanyDao;
-import agora.model.Company;
+import agora.dao.SubscriberDao;
+import agora.model.Subscriber;
 
 @Controller
 public class Activator {
@@ -32,7 +32,7 @@ public class Activator {
     private UserDetailsService userDetailsService;
 	
 	@Autowired
-    private CompanyDao companyDao;
+    private SubscriberDao subscriberDao;
 	
 	
 	@RequestMapping(value="/manage-permission", method=RequestMethod.GET)
@@ -52,13 +52,13 @@ public class Activator {
 	@ResponseBody 
 	@Transactional
 	public  List<ByCompany> getCompanies(ModelMap map) {
-		 return buildCompanyJson(companyDao.getCompanyList(), userDetailsService.getAllRole());
+		 return buildCompanyJson(subscriberDao.getCompanyList(), userDetailsService.getAllRole());
 	}
 	
 	
-	private List<ByCompany> buildCompanyJson(List<Company> companies, List<Role> roles) {
+	private List<ByCompany> buildCompanyJson(List<Subscriber> companies, List<Role> roles) {
 		List<ByCompany> byCompanies = new ArrayList<Activator.ByCompany>();	
-		for(Company _c: companies) {
+		for(Subscriber _c: companies) {
 			ByCompany byCompany = new ByCompany();
 			byCompany.i = _c.getId();
 			if(_c.getDeleted() != null){
@@ -109,7 +109,7 @@ public class Activator {
 	@RequestMapping(value="/get-company/{company}", method=RequestMethod.GET)
 	@ResponseBody
 	public List<CompanyVM> getCompanyDetails(@PathVariable String company) {
-		Company cmps = companyDao.getCompanyByName(company);
+		Subscriber cmps = subscriberDao.getCompanyByName(company);
 		
 		return null;
 		
@@ -131,6 +131,23 @@ public class Activator {
 			if(u.isDeleted() != null){
 				userVM.a = u.isDeleted().toString();
 			}
+			if(u.getCompany().getName().equalsIgnoreCase("essentia")) {
+				if(userVM.roles == null) {
+					userVM.roles = new ArrayList<HasRole>();
+				}
+				List<Role> roles = userDetailsService.getAllRole();
+				for (Role _r: roles) {
+					HasRole hs = new HasRole();
+					hs.i = _r.id;
+					hs.c = 0;
+					hs.n = _r.name;
+					if(u.getRoles().contains(_r)) {
+						hs.c = 1;
+					}
+					userVM.roles.add(hs);
+				}
+			}
+			
 			userVM.un = u.username;
 			userVM.pw = u.password;
 			try {
@@ -186,7 +203,7 @@ public class Activator {
 	@ResponseBody
 	public  String updateCompany(@PathVariable String name, @RequestBody CompanyVM cmp) {
 		System.out.println(cmp.em+"-------");
-		Company comp = companyDao.getCompanyByName(name);
+		Subscriber comp = subscriberDao.getCompanyByName(name);
 		comp.setEmail(cmp.em);
 		comp.setPhone(cmp.ph);
 		comp.setContact_name(cmp.cp);
@@ -197,7 +214,7 @@ public class Activator {
 	    	} catch(Exception e) {
 	    		
 	    	}*/
-		companyDao.updateCompany(comp);
+		subscriberDao.updateCompany(comp);
 		return "Company Updated sucessfully";
 		
 	}
@@ -205,11 +222,11 @@ public class Activator {
 	@PreAuthorize("hasRole('Agora_Admin')")
 	@ResponseBody
 	public  List<UserVM> activateCompany(@PathVariable Integer id) {
-		Company cmp = companyDao.getCompanyById(id);
+		Subscriber cmp = subscriberDao.getCompanyById(id);
 		UserVM vm = new UserVM();
 		List<UserVM> userList = new ArrayList<UserVM>();
 		cmp.setDeleted(1);
-		companyDao.updateCompany(cmp);
+		subscriberDao.updateCompany(cmp);
 		List<User> users = userDetailsService.getUserByCompany(cmp.getId());
 		//Jagbir: If company is made active , User need not to be made active.
 		/*if(users.size() != 0){
@@ -230,9 +247,9 @@ public class Activator {
 	public  List<UserVM> deleteCompany(@PathVariable Integer id) {
 		UserVM vm = new UserVM();
 		List<UserVM> userList = new ArrayList<UserVM>();
-		Company cmp = companyDao.getCompanyById(id);
+		Subscriber cmp = subscriberDao.getCompanyById(id);
 		cmp.setDeleted(0);
-		companyDao.updateCompany(cmp);
+		subscriberDao.updateCompany(cmp);
 		List<User> users = userDetailsService.getUserByCompany(cmp.getId());
 		if(users.size() != 0){
 			for(User usr : users) {
@@ -289,6 +306,9 @@ public class Activator {
     		
     	}
     	userDetailsService.updateUser(usr);
+    	for(int j = 0; j<user.roles.size(); j++) {
+    		userDetailsService.ChangeUserRole(user.roles.get(j).c == 1?true:false, usr.getId(), user.roles.get(j).i);
+    	}
 		return "User information updated";
     }
 	
@@ -297,10 +317,10 @@ public class Activator {
 	@ResponseBody
 	public  ByCompany saveCompany(@RequestBody CompanyVM cmp) {
 		
-		if (companyDao.getCompanyByName(cmp.n) != null){
+		if (subscriberDao.getCompanyByName(cmp.n) != null){
 			return null;
 		}
-		Company comp = new Company();
+		Subscriber comp = new Subscriber();
 		comp.setEmail(cmp.em);
 		comp.setName(cmp.n);
 		comp.setPhone(cmp.ph);
@@ -312,14 +332,14 @@ public class Activator {
 	    	} catch(Exception e) {
 	    		
 	    	}
-		companyDao.saveCompany(comp);
-    	Company c = companyDao.getCompanyByName(cmp.n);
+		subscriberDao.saveCompany(comp);
+		Subscriber c = subscriberDao.getCompanyByName(cmp.n);
 		ByCompany byCompany = getCompanyStruncture(c);
 	    
 		return byCompany;
 		
 	}
-	public ByCompany getCompanyStruncture(Company cmp){
+	public ByCompany getCompanyStruncture(Subscriber cmp){
 		ByCompany byCompany = new ByCompany();
 		byCompany.n = cmp.getName();	
 		byCompany.cp = cmp.getContact_name();
@@ -350,7 +370,7 @@ public class Activator {
 			role.n = _r.name;
 			byCompany.rs.add(role);
 		}
-		byCompany.i = companyDao.getCompanyByName(cmp.getName()).getId();
+		byCompany.i = subscriberDao.getCompanyByName(cmp.getName()).getId();
 		return byCompany;
 	}
 	@RequestMapping(value="/saveUser", method=RequestMethod.POST)
@@ -362,7 +382,7 @@ public class Activator {
 		};
 		
 		User usr = new User();
-		Company cmp = companyDao.getCompanyByName(user.c);
+		Subscriber cmp = subscriberDao.getCompanyByName(user.c);
 		
     	usr.firstName = user.fn;
     	usr.lastName = user.ln;
@@ -379,6 +399,9 @@ public class Activator {
     	usr.setNotes(user.nts);
     	usr.setNotes(user.ct);
     	userDetailsService.updateUser(usr);
+    	for(int j = 0; j<user.roles.size(); j++) {
+    		userDetailsService.ChangeUserRole(user.roles.get(j).c == 1? true:false, usr.getId(), user.roles.get(j).i);
+    	}
     	UserVM vm = getUser(usr);
 		return vm;
     }
@@ -473,7 +496,7 @@ public class Activator {
 		public String an;
 	}
 	
-	class HasRole {
+	static class HasRole {
 		public int c;
 		public int i;
 		public String n;
@@ -495,7 +518,9 @@ public class Activator {
 		public String pw;
 		public String c;
 		public String sd;
+		public List<HasRole> roles;
 	}
+	
 	
 	@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 	static class CompanyVM {

@@ -17,6 +17,29 @@ angular.module('agora')
 			$http.post("company-role/" + ($(e.target).attr('checked') == 'checked') + "/" + cid + "/" + rid);
 		}
 		
+		$scope.userRoleChangeForNewUser = function(e, r) {
+			if($(e.target).attr('checked') == 'checked') {
+				$scope.editUser.roles.push({
+					i : r,
+					c : 0
+				});
+			
+			} else {
+				//todo
+			}
+		};
+		
+		$scope.userRoleChange = function(e, r) {
+			if($(e.target).attr('checked') == 'checked') {
+				r.c=1;
+			
+			} else {
+				r.c=0;
+			}
+			
+		};
+		
+	
 		
 		$scope.manageUserForCompany = function(c, cu){
 			$scope.oldu = cu;
@@ -32,7 +55,9 @@ angular.module('agora')
 					pw: cu.pw,
 					sd: cu.sd,
 					un: cu.un,
+					roles:cu.roles
 			}
+			
 			$scope.mode = "add";
 			ngDialog.open({
 				template: 'manage-edit-user.html',
@@ -179,6 +204,7 @@ angular.module('agora')
 					a:1,
 					sd: "",
 					un: "",
+					roles:[],
 			}
 			$scope.mode = "add";
 			ngDialog.open({
@@ -319,12 +345,31 @@ angular.module('agora')
 			});
 		}
 		
-		
+		$scope.activeUser = function(uid) {
+			$http.post("activeUserOfCompany/"+uid ).success(function(data) {
+				for(var j = 0; j<usersData.length;j++) {
+					if(usersData[j].i == uid){
+						usersData[j].a = 1;
+						break;
+					}
+				}
+			});
+		};
 		$scope.activeUserOfCompany = function(cu) {
 			$http.post("activeUserOfCompany/"+cu.i ).success(function(data) {
 				for(var j = 0; j<$scope.users.length;j++) {
 					if($scope.users[j].i == cu.i){
 						$scope.users[j].a = 1;
+						break;
+					}
+				}
+			});
+		};
+		$scope.deleteUser = function(uid){
+			$http.post("deleteUserOfCompany/"+uid ).success(function(data) {
+				for(var j = 0; j<usersData.length;j++) {
+					if(usersData[j].i == uid){
+						usersData[j].a = 0;
 						break;
 					}
 				}

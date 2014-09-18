@@ -20,7 +20,15 @@ public class UserDetailsService implements org.springframework.security.core.use
     private SessionFactory sf;
 
     public UserDetails loadUserByUsername(String username) {
-	List<User> users = sf.getCurrentSession().createQuery("from User where username = :username and is_deleted = 1")
+    //Jagbir: Logic not refactored
+	User usr = (User) sf.getCurrentSession().createQuery("from User where username = :username").setString("username", username).uniqueResult();
+    Integer comp_isDeleted = null;
+    if(usr != null){
+    	comp_isDeleted = usr.getCompany().getDeleted();
+    }else{
+    	return null;
+    }
+    List<User> users = sf.getCurrentSession().createQuery("from User where username = :username  and "+comp_isDeleted +"<> 0 and is_deleted = 1")
 	    .setString("username", username)
 	    .list();
 	if (users.size() != 1)
@@ -91,7 +99,7 @@ public class UserDetailsService implements org.springframework.security.core.use
 	public List<User> getAllUser() {
 		sf.getCurrentSession().flush(); 
 		sf.getCurrentSession().clear();
-		List<User> users = sf.getCurrentSession().createQuery("from User").list();
+		List<User> users = sf.getCurrentSession().createQuery("from User order by first_name").list();
 		sf.getCurrentSession().refresh(users.get(0));
 		return users;
 	}
@@ -167,16 +175,16 @@ public class UserDetailsService implements org.springframework.security.core.use
 	
 	public void ChangeCompanyRole(boolean mode, int company, int role) {
 		
-		int count = jt.queryForInt("select count(*) from company_role  where comp_id = ? and role_id = ?",
+		int count = jt.queryForInt("select count(*) from subscriber_role  where comp_id = ? and role_id = ?",
 				new Object[] {company, role});
 		
 		if(count == 0 && mode == true) {
-			jt.update("insert into company_role (role_id, comp_id) values (?,?)",
+			jt.update("insert into subscriber_role (role_id, comp_id) values (?,?)",
 				      new Object[] {role, company});
 		}
 		
 		if(count == 1 && mode == false) {
-			jt.update("delete from company_role where role_id = ? and comp_id = ?",
+			jt.update("delete from subscriber_role where role_id = ? and comp_id = ?",
 					  new Object[] {role, company});
 		}
 		

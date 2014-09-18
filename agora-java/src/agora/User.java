@@ -10,9 +10,12 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -23,7 +26,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 
-import agora.model.Company;
+import agora.model.Subscriber;
 @Entity
 @Table(name="users")
 public class User implements UserDetails {
@@ -38,9 +41,9 @@ public class User implements UserDetails {
     private String notes;
     boolean enabled = true;
     Integer deleted = 1;
-    public Company company;
+    public Subscriber company;
     
-    /*public List<Role> roles = new ArrayList<Role>();*/
+    public List<Role> roles = new ArrayList<Role>();
     public List<UserQuery> editorsDocketQueries = new ArrayList<UserQuery>();
     public List<UserQuery> rssQueries = new ArrayList<UserQuery>();
     
@@ -51,9 +54,16 @@ public class User implements UserDetails {
     @Transient
     @Transactional
     public Collection<GrantedAuthority> getAuthorities() {
+    	List<GrantedAuthority> roles =  new ArrayList<GrantedAuthority>();
     	List<Role> rolesFromCompany = company.getRoles();
+    	
+    	if(company.getName().trim().equals("essentia")) {
+    		roles.addAll(this.getRoles());
+    	} else {
+    		roles.addAll(rolesFromCompany);
+    	}
     	/*rolesFromCompany.addAll(roles);*/
-    	return new ArrayList<GrantedAuthority>(rolesFromCompany);
+    	return roles;
     }
 
     @Transient
@@ -121,9 +131,9 @@ public class User implements UserDetails {
     
     @ManyToOne
     @JoinColumn(name="comp_id")
-    public Company getCompany() { return company; }
+    public Subscriber getCompany() { return company; }
     
-    public void setCompany(Company company) {
+    public void setCompany(Subscriber company) {
         this.company = company;
     }
 
@@ -220,7 +230,7 @@ public class User implements UserDetails {
 		this.hiddenpermisions = hiddenpermisions;
 	}*/
     
-    /*@ManyToMany(fetch=FetchType.EAGER)
+    @ManyToMany(fetch=FetchType.EAGER)
     @JoinTable(name="authorities",
 	       joinColumns=@JoinColumn(name="user_id"),
 	       inverseJoinColumns=@JoinColumn(name="role_id"))
@@ -228,7 +238,7 @@ public class User implements UserDetails {
 
     public void setRoles(List<Role> roles) {
     	this.roles = roles;
-    }*/
+    }
 
 	
 }
