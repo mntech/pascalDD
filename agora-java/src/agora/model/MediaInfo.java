@@ -38,6 +38,7 @@ public class MediaInfo implements java.io.Serializable {
 	public Subscription subscription;
 	public Integer parent_id;
 	
+	public String image_name;
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "id", unique = true, nullable = false)
@@ -200,6 +201,14 @@ public class MediaInfo implements java.io.Serializable {
 
 	public void setScheduled_NL_frequency(String scheduled_NL_frequency) {
 		this.scheduled_NL_frequency = scheduled_NL_frequency;
+	}
+
+	public String getImage_name() {
+		return image_name;
+	}
+
+	public void setImage_name(String image_name) {
+		this.image_name = image_name;
 	}
 	
 

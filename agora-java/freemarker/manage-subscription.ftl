@@ -2,7 +2,8 @@
 <html>
 <head>
 	<title>Agora - Welcome</title>
-	
+	 
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 	<link rel="shortcut icon" href="agora_icon.ico"/>
 	<script type="text/javascript" src="jq.js"></script>
 	<script type="text/javascript" src="js-lib/angular.min.js"></script>
@@ -11,10 +12,23 @@
 	<script type="text/javascript" src="js-lib/bootstrap/js/bootstrap-datepicker.js"></script>
 	<script type="text/javascript" src="ng-table.js"></script>
 	<script type="text/javascript" src="validation-rule.js"></script>
-	<script type="text/javascript" src="js/angular.treeview.js"></script>
-	<script type="text/javascript" src="js/ng-context-menu.js"></script>
+	<script type="text/javascript" src="js-lib/angular.treeview.js"></script>
+	<script type="text/javascript" src="js-lib/ng-context-menu.js"></script>
 	<script type="text/javascript" src="js-lib/ng-dialog/js/ngDialog.min.js"></script>
 
+	<script type="text/javascript" src="js-lib/firebugx.js"></script>
+	<script type="text/javascript" src="js-lib/jquery-ui-1.8.16.custom.min.js"></script>
+	<script type="text/javascript" src="js-lib/jquery.event.drag-2.2.js"></script>
+	
+	
+	<script type="text/javascript" scr = "js-lib/angular-file-upload-shim.min.js"></script>
+	<script type="text/javascript" src="js-lib/angular-file-upload.js"></script>
+	
+
+	
+	<link href="css-lib/excelTable2007.css" rel="stylesheet" type="text/css" />
+
+	
 	<link href="js-lib/ng-dialog/css/ngDialog.min.css" rel="stylesheet" type="text/css" />
 	<link href="js-lib/ng-dialog/css/ngDialog-theme-default.min.css" rel="stylesheet" type="text/css" />
 	<link data-require="ng-table@*" data-semver="0.3.0" rel="stylesheet" href="http://bazalt-cms.com/assets/ng-table/0.3.0/ng-table.css" />
@@ -26,10 +40,25 @@
 	
 	
 	<style>
+		body { font-family: sans-serif; }
+  
+    	.column-grid  >  td { border: 1px solid #EEE; }
+  		.column-label  > td, .row-label {
+    		text-align: center;
+    		background: #EEE;
+  		}
+ 
+  		.row-label { width: 2em; height:38px; }
+		.cell-title {
+	    	font-weight: bold;
+	    }
+		.table-input > td > input  { border: none;}
+	    .cell-effort-driven {
+	    	text-align: center;
+	    }
 		.ngdialog.ngdialog-theme-default .ngdialog-content {
 			min-height: 150px;
 			min-width: 500px;
-			
 		}
 		.ngdialog.ngdialog-theme-default {
 			padding-top: 113px; !important
@@ -115,6 +144,7 @@
 			z-index:100;
 		}
 	</style>
+
 </head>
 <body id="template" ng-app='agora' ng-controller="SubscriptionController">
 <a href="adminReportList.m" class="logo" title="Essentia: AGORA"><img src="logo_agora.png"></a>
@@ -135,32 +165,50 @@
 						</li>
 		      		</ul>
 		      		</div>
-			 		<div style="background-color: white; padding-top: 2%; width:25%;float: left;border-right: 2px solid black;overflow-x: scroll;height:1090px;"
-		      			data-angular-treeview="true"
+		      	
+			 		<div   style="background-color: white; padding-top: 2%; width:25%;float: left;border-right: 2px solid black;overflow-x: scroll;height:1232px;"
+ 		      			data-angular-treeview="true"
 		      			data-tree-id="mytree"
 		      			data-node-id="id"
 		      			data-tree-model="roleList">
 			     	</div>
-			     	<div style="background-color: white; padding-top: 1%; width:75%;margin-left: 25%;padding-left: 10px;height:1090px;">
+			     	</div>
+			     	<div style="background-color: white; padding-top: 1%; width:75%;margin-left: 25%;padding-left: 10px;height:1232px;;">
 					<div style= "height: 50px">
 						<ul class="nav nav-tabs" role="tablist" id="myTab">
-						  <li class="active"><a href="#home" role="tab" data-toggle="tab">Media Info</a></li>
-						  <li><a href="#oRates" role="tab" data-toggle="tab">O' Rates</a></li>
-						  <li><a href="#pRates" role="tab" data-toggle="tab">P' Rates</a></li>
-						  <li><a href="#addSpec" role="tab" data-toggle="tab">Ad' Spec</a></li>
+						  <li class="active"><a ng-click = "disabledOrates()" href="#home" role="tab" data-toggle="tab"  style = "background: rgb(153,204,255);">Media Info</a></li>
+						  <li><a ng-click = "inableOrates()" href="#oRates" role="tab" data-toggle="tab" style = "background: rgb(153,204,255);">O' Rates</a></li>
+						  <li><a ng-click = "disabledOrates()" href="#pRates" role="tab" data-toggle="tab" style = "background: rgb(153,204,255);">P' Rates</a></li>
+						  <li><a ng-click = "disabledOrates()" href="#addSpec" role="tab" data-toggle="tab" style = "background: rgb(153,204,255);">Ad' Spec</a></li>
 						</ul>
 					</div>
 					<div class="tab-content">
 	  					<div class="tab-pane active" id="home">
+	  						<table  ng-hide="editIdImage===subscription.id" ng-show="isSubscription" style="width: 99%;" class="table Contextual  table-striped table-bordered table-condensed table-hover">
+								<tr>
+					    			<th style="width:16%;">Image</th>
+					    			<td>
+					    			<img ng-click = "showImagePopup(subscription.id)" data-ng-src="{{img}}" alt="">
+					    			<a class="glyphicon glyphicon-edit" href="" ng-click="setEditIdImage(subscription)" id="editCatBtn{{subscription.id}}" style="text-decoration: none;color : purple; float:right;"/></a>	
+					    			</td>
+					    		</tr>	  						
+	  						</table>
+	  						<table  ng-show="editIdImage === subscription.id" ng-if="editIdImage === subscription.id">
+					    		<tr>
+			 						<td  data-title="'Name'" style="border:1pt solid black;width: 10%;">
+			 							<div ng-include src="'add-edit-Image.html'">"editIdImage"
+			 							</div>
+			 						</td>
+				 				</tr>
+			 				</table>
 	  						<table ng-hide="editIdCat===subscription.id" ng-show="isSubscription" style="width: 99%;" class="table Contextual  table-striped table-bordered table-condensed table-hover">
 					    		<tr>
 					    			<th style="width:16%;">Title</th>
 					    			<td>
 					    				{{subscription.title}}
+					    				<a class="glyphicon glyphicon-edit" href="" ng-click="setEditIdCat(subscription)" id="editCatBtn{{subscription.id}}" style="text-decoration: none;color : purple; float:right;"/></a>
 					    			</td>
-					    			<td style="width:10%;"> 
-					    				<input type="button" value="EDIT" ng-click="setEditIdCat(subscription)" id="editCatBtn{{subscription.id}}" class="btn btn-primary">
-					    			</td>
+					    			
 					    		</tr>
 					    		<tr>
 					    			<th>Url</th>
@@ -232,15 +280,64 @@
 				 				</tr>
 			 				</table>
 			 			</div>
-						<div class="tab-pane" id="oRates">.jhk..</div>
-	  					<div class="tab-pane" id="pRates">...</div>
+						<div  style ="float: left; width: 100%; height:450px; overflow:scroll;" class="dwrapper tab-pane" id="oRates">
+							<div ng-controller="sheet">
+								<table class="ExcelTable2007">
+									<tr class="column-label">
+								      <td></td>
+								      <td  class="heading" ng-repeat="column in columns">{{column}}</td>
+								    </tr>
+								    <tr  class="column-grid table-input" ng-repeat="row in rows" >
+								      <td style = "overflow-x: auto; overflow-y: hidden;" class="row-label heading"">{{row.Y_names}}</td>
+								      <td><input ng-blur="save('LeaderBoard', row, row.LeaderBoard)" ng-model="row.LeaderBoard"></input></td>
+								      <td><input ng-blur="save('Banner', row, row.Banner)" ng-model="row.Banner"></input></td>
+								      <td><input ng-blur="save('Skyscraper', row, row.Skyscraper)" ng-model="row.Skyscraper"></input></td>
+								      <td><input ng-blur="save('Sponsored_Links_ROS', row, row.Sponsored_Links_ROS)" ng-model="row.Sponsored_Links_ROS"></input></td>
+								      <td><input ng-blur="save('Interstitial_Pop_Up', row, row.Interstitial_Pop_Up)" ng-model="row.Interstitial_Pop_Up"></input></td>
+								      <td><input ng-blur="save('Page_Peel', row, row.Page_Peel)" ng-model="row.Page_Peel"></input></td>
+								      <td><input ng-blur="save('Page_Push', row, row.Page_Push)" ng-model="row.Page_Push"></input></td>
+								      
+								      <td><input ng-blur="save('Video_Ad', row, row.Video_Ad)" ng-model="row.Video_Ad"></input></td>
+								      <td><input ng-blur="save('Logo', row, row.Logo)" ng-model="row.Logo"></input></td>
+								      <td><input ng-blur="save('Box_Ad', row, row.Box_Ad)" ng-model="row.Box_Ad"></input></td>
+								      <td><input ng-blur="save('Sponsor_Posts_per_post', row, row.Sponsor_Posts_per_post)" ng-model="row.Sponsor_Posts_per_post"></input></td>
+								      <td><input ng-blur="save('Small_Box', row, row.Small_Box)" ng-model="row.Small_Box"></input></td>
+								      <td><input ng-blur="save('Marketplace', row, row.Marketplace)" ng-model="row.Marketplace"></input></td>
+								      <td><input ng-blur="save('Custom', row, row.Custom)" ng-model="row.Custom"></input></td>
+								      
+								      <td><input ng-blur="save('Text_Ads', row, row.Text_Ads)" ng-model="row.Text_Ads"></input></td>
+								      <td><input ng-blur="save('Featured_Products', row, row.Featured_Products)" ng-model="row.Featured_Products"></input></td>
+								      <td><input ng-blur="save('Text_65_Words', row, row.Text_65_Words)" ng-model="row.Text_65_Words"></input></td>
+								      <td><input ng-blur="save('Button', row, row.Button)" ng-model="row.Button"></input></td>
+								      <td><input ng-blur="save('Box', row, row.Box)" ng-model="row.Box"></input></td>
+								      <td><input ng-blur="save('Rectangle', row, row.Rectangle)" ng-model="row.Rectangle"></input></td>
+								      <td><input ng-blur="save('e_solution_Broadcast', row, row.e_solution_Broadcast)" ng-model="row.e_solution_Broadcast"></input></td>
+								      <td><input ng-blur="save('Footer', row, row.Footer)" ng-model="row.Footer"></input></td>
+								     
+								      <td><input ng-blur="save('Top_position', row, row.Top_position)" ng-model="row.Top_position"></input></td>
+								      <td><input ng-blur="save('Button_footer', row, row.Button_footer)" ng-model="row.Button_footer"></input></td>
+								      <td><input ng-blur="save('Showcase', row, row.Showcase)" ng-model="row.Showcase"></input></td>
+								      <td><input ng-blur="save('Banner_Footer', row, row.Banner_Footer)" ng-model="row.Banner_Footer"></input></td>
+								      <td><input ng-blur="save('Featured_Profile_Pdt', row, row.Featured_Profile_Pdt)" ng-model="row.Featured_Profile_Pdt"></input></td>
+								      <td><input ng-blur="save('large_rectangle', row, row.large_rectangle)" ng-model="row.large_rectangle"></input></td>
+								      <td><input ng-blur="save('e_solution_Broadcast_Footer', row, row.e_solution_Broadcast_Footer)" ng-model="row.e_solution_Broadcast_Footer"></input></td>
+								      
+								      <td><input ng-blur="save('Hosting', row, row.Hosting)" ng-model="row.Hosting"></input></td>
+								      <td><input ng-blur="save('Exhibit_Hall', row, row.Exhibit_Hall)" ng-model="row.Exhibit_Hall"></input></td>
+								      <td><input ng-blur="save('Pdt_List', row, row.Pdt_List)" ng-model="row.Pdt_List"></input></td>
+								      <td><input ng-blur="save('Insert_Footer', row, row.Insert_Footer)" ng-model="row.Insert_Footer"></input></td> 
+								    </tr>
+							  	</table>
+						  	</div>	
+						</div>
+	  					<div class="tab-pane" id="pRates"></div>
 	  					<div class="tab-pane" id="addSpec">...</div>
 					</div>
-			  	  	</div>
-				</div>
-		 	</div>
+			  	</div>
+			</div>
 		</div>
 	</div>
+</div>
 </div>
  	
 <div class="dropdown position-fixed" id="myMenu{{$index}}">
@@ -277,8 +374,42 @@
 	 		</div>
 		</div>
 </script>   
+<script type="text/javascript">
+function isFile() {
+/* 	var ele=document.getElementById("file").value;
+	if(ele!= null && ele!="") {
+		 return true;
+	} else {
+		alert("Select file before submitting!");
+		return false;
+	} */
+}
+</script>
+<script type="text/ng-template" id="show-original-image.html">
+	<table style="width: 99%;">
+			<tr>
+			<img data-ng-src="{{originalImagePath}}" style = "height : 400px; width : 460px;" alt="" >
+			</tr>
+	</table>
+</script>
+
+<script type="text/ng-template" id="add-edit-Image.html">
+		<table style="width: 99%; " class="table Contextual  table-striped table-bordered table-condensed table-hover">
+			<tr>
+				<th  style="width:16%;">Image Logo</th>
+				<td>
+					<form onsubmit="return isFile();" method="POST" id="upload-csv-data" enctype="multipart/form-data">
+					<input type="file" style = "width: 50%; width: 50%; float: left;" ng-file-select="onFileSelect($files)" >
+					<button type="submit" ng-click="fileUpload(subscription);closeThisDialog()" style = "margin-left: 2%;" class="btn btn-mini btn-success">Upload</button>
+					<button class="btn btn-dafault" ng-click="resetEditImageId();closeThisDialog()" >Cancel</button></form>
+				</td>
+				
+				
+			</tr>
+		</table>
+</script>
 <script type="text/ng-template" id="add-edit-user.html">
-		<table style="width: 99%;" class="table Contextual  table-striped table-bordered table-condensed table-hover">
+		<table style="width: 99%; " class="table Contextual  table-striped table-bordered table-condensed table-hover">
 			<tr>
 				<th style="width:16%;">Title</th>
 				<td><input style = "width: 50%;" type="input" disabled  class=" form-control" ng-model="subscription.title"></td>
@@ -364,7 +495,7 @@
     	position: 'top',
     	persist_tab: false
   	});
-  angular.module('agora', ['angularTreeview', 'ng-context-menu' ,'ngDialog', 'ngTable']);
+  angular.module('agora', ['angularTreeview', 'ng-context-menu' ,'ngDialog', 'ngTable', 'angularFileUpload']);
 </script>
 
 <script type="text/javascript" src="agora-angular-manage-subscription.js"></script>

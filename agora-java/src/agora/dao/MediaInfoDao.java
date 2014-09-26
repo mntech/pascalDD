@@ -1,11 +1,19 @@
 package agora.dao;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+
+import net.coobird.thumbnailator.Thumbnails;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import agora.model.MediaInfo;
 
@@ -14,7 +22,8 @@ import agora.model.MediaInfo;
 public class MediaInfoDao {
 	@Autowired
 	private SessionFactory sf;
-
+	String rootDir = "/home";
+	String fileExt = null;
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sf = sessionFactory;
 	}
@@ -61,6 +70,47 @@ public class MediaInfoDao {
 	}
 	public void deleteSubscriptionInfoById(Integer id) {
 		sf.getCurrentSession().createQuery("delete from MediaInfo where subscription_id ="+id).executeUpdate();
+		
+	}
+	public String saveUploadFile(MultipartFile file, Integer subID) {
+		//AuthUser user = Helper.getCurrentUser();
+		//Facility facility = user.getFacility();
+		String[] fileArr = file.getOriginalFilename().split("\\.");
+		fileExt = fileArr[fileArr.length-1];
+	
+		createFacilityDir(rootDir, subID);
+		
+		String fileName = rootDir + File.separator + subID+File.separator+"Logo_thumbnail."+fileExt;
+		String originalFileName = rootDir + File.separator + subID+File.separator+"Original_image."+fileExt;
+		try {
+			BufferedImage originalImage = ImageIO.read(file.getInputStream());
+				File f = new File(fileName);
+				Thumbnails.of(originalImage)
+				.size(124, 124)
+				.toFile(f);
+				File _f = new File(originalFileName);
+				Thumbnails.of(originalImage).scale(1.0).
+				toFile(_f);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			System.out.println(fileExt);
+			return fileExt;
+	}
+	
+	public static void createFacilityDir(String rootDir, Integer subID) {
+		File file3 = new File(rootDir + File.separator+subID);
+		if (!file3.exists()) {
+			file3.mkdirs();
+		}
+	}
+	public String getImagePathByIdForThumbnail(Integer id, String image_name) {
+		return rootDir + File.separator + id+File.separator+"Logo_thumbnail."+image_name;
+	}
+	public String getImagePathByIdForOriginal(Integer id, String image_name) {
+		return rootDir + File.separator + id+File.separator+"Original_image."+image_name;
 		
 	}
 
