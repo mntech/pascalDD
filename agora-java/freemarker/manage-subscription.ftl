@@ -58,11 +58,11 @@
  		.expand {
  			width:99%;
  		}
-  		.row-label { width: 2em; height:38px; }
+  		.row-label { width: 2em; height:20px; }
 		.cell-title {
 	    	font-weight: bold;
 	    }
-		.table-input > td > input  { border: none;}
+		.table-input > td > input  { border: none;height:20px}
 	    .cell-effort-driven {
 	    	text-align: center;
 	    }
@@ -317,7 +317,7 @@
 								    </tr>
 								    </thead>
 								    <tbody>
-								    <tr  class="column-grid table-input" ng-repeat="row in rows" >
+								    <tr style="height: 38px !important"  class="column-grid table-input" ng-repeat="row in rows" >
 								      <td style = "overflow-x: auto; overflow-y: hidden;" class="row-label heading"">{{row.Y_names}}</td>
 								      <td><input ng-blur="save('LeaderBoard', row, row.LeaderBoard)" ng-model="row.LeaderBoard"></input></td>
 								      <td><input ng-blur="save('Banner', row, row.Banner)" ng-model="row.Banner"></input></td>
