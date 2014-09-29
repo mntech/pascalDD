@@ -50,7 +50,14 @@
     		text-align: center;
     		background: #EEE;
   		}
- 
+ 		
+ 		.colapse {
+ 			width:74%;
+ 			margin-left: 25%;
+ 		}
+ 		.expand {
+ 			width:99%;
+ 		}
   		.row-label { width: 2em; height:38px; }
 		.cell-title {
 	    	font-weight: bold;
@@ -146,39 +153,56 @@
 			position: absolute !important;
 			z-index:100;
 		}
+		
+		#loading-id {
+			position: absolute;
+			z-index: 100;
+			top: 50%;
+			left: 50%;
+		}
+		.content_holder_inner {
+			background:white;
+		}
+		.custom-nov {
+			border: none !important;
+		}
 	</style>
-
+	
 </head>
 <body id="template" ng-app='agora' ng-controller="SubscriptionController">
+<span id="loading-id"><img src="images/loading.gif"/></span>
 <a href="adminReportList.m" class="logo" title="Essentia: AGORA"><img src="logo_agora.png"></a>
-	
+
 <div class="tabs_holder">
 	<ul>
 		<li><a href="#subscription-tab" >Manage Subscription</a></li>
 		<li><a href="#company-tab" >Manage Company</a></li>
 	</ul>
 	<div class="content_holder">
-		<div id="subscription-tab">
+		<div id="subscription-tab ">
 			<div ng-init="loadmedia()">
-				<div>	
-			 		<div context-menu="onParentAdd();"  class=" position-fixed" data-target="myParentMenu" ng-class="{ 'highlight': highlight, 'expanded' : expanded }"  data-ng-class="node.selected" style = "background: white; padding-left: 2%;" >
-			 		<ul>
-		      			<li>
-							<i class="collapsed" > Root</i>
-						</li>
-		      		</ul>
-		      		</div>
-		      	
-			 		<div   style="background-color: white; padding-top: 2%; width:25%;float: left;border-right: 2px solid black;overflow-x: scroll;height:1232px;"
- 		      			data-angular-treeview="true"
-		      			data-tree-id="mytree"
-		      			data-node-id="id"
-		      			data-tree-model="roleList">
-			     	</div>
-			     	</div>
-			     	<div style="background-color: white; padding-top: 1%; width:75%;margin-left: 25%;padding-left: 10px;height:1232px;;">
+				<div style = "float:left; background:white;" >
+				<button style = "float: right;" type="button" class="glyphicon glyphicon-chevron-right" ng-model="collapsed" ng-click="collapsed=!collapsed"> </button>
+					<div ng-hide="collapsed">	
+				 		<div context-menu="onParentAdd();"  class=" position-fixed" data-target="myParentMenu" ng-class="{ 'highlight': highlight, 'expanded' : expanded }"  data-ng-class="node.selected" style = "background: white; padding-left: 2%;" >
+					 		<ul>
+				      			<li>
+									<i class="collapsed" > Root</i>
+								</li>
+				      		</ul>
+			      		</div>
+					 	<div  style="background-color: white; padding-top: 2%; width:250px;float: left;border-right: 2px solid black;"
+		 		      			data-angular-treeview="true"
+				      			data-tree-id="mytree"
+				      			data-node-id="id"
+				      			data-tree-model="roleList">
+					    </div>
+				    </div>
+			    </div>
+			     	<div ng-class="collapsed==true ?'expand' :'colapse' " style="background-color: white; padding-top: 1%; padding-left: 10px;" >
+			     	<div>
 					<div style= "height: 50px">
-						<ul class="nav nav-tabs" role="tablist" id="myTab">
+						<ul class="nav nav-tabs custom-nov" role="tablist" id="myTab">
 						  <li class="active"><a ng-click = "disabledOrates()" href="#home" role="tab" data-toggle="tab"  style = "background: rgb(153,204,255);">Media Info</a></li>
 						  <li><a ng-click = "inableOrates()" href="#oRates" role="tab" data-toggle="tab" style = "background: rgb(153,204,255);">O' Rates</a></li>
 						  <li><a ng-click = "disabledOrates()" href="#pRates" role="tab" data-toggle="tab" style = "background: rgb(153,204,255);">P' Rates</a></li>
@@ -209,7 +233,7 @@
 					    			<th style="width:16%;">Title</th>
 					    			<td>
 					    				{{subscription.title}}
-					    				<a class="glyphicon glyphicon-edit" href="" ng-click="setEditIdCat(subscription)" id="editCatBtn{{subscription.id}}" style="text-decoration: none;color : purple; float:right;"/></a>
+					    				<a  class="glyphicon glyphicon-edit" href="" ng-click="setEditIdCat(subscription)" id="editCatBtn{{subscription.id}}" style="text-decoration: none;color : purple; float:right;"/></a>
 					    			</td>
 					    			
 					    		</tr>
@@ -283,7 +307,7 @@
 				 				</tr>
 			 				</table>
 			 			</div>
-						<div  style ="float: left; width: 100%;" class="dwrapper tab-pane" id="oRates">
+						<div  style ="float: left; width: 99%;" class="dwrapper tab-pane" id="oRates">
 							<div ng-controller="sheet">
 								<table datatable="ng" dt-options="dtOptions" class="ExcelTable2007">
 									<thead>
@@ -337,8 +361,11 @@
 							  	</table>
 						  	</div>	
 						</div>
-	  					<div class="tab-pane" id="pRates"></div>
-	  					<div class="tab-pane" id="addSpec">...</div>
+	  					<div class="tab-pane" id="pRates">
+						</div>
+	  					<div class="tab-pane" id="addSpec">
+	  					</div>
+	  					</div>
 					</div>
 			  	</div>
 			</div>
@@ -502,7 +529,34 @@ function isFile() {
     	position: 'top',
     	persist_tab: false
   	});
-  angular.module('agora', ['angularTreeview', 'ng-context-menu' ,'ngDialog', 'ngTable', 'angularFileUpload','datatables']);
+  angular.module('agora', ['angularTreeview', 'ng-context-menu' ,'ngDialog', 'ngTable', 'angularFileUpload','datatables']).factory('MyHttpInterceptor', function ($q) {
+                                    return {
+                                      request: function (config) {
+                                                  $('#loading-id').show();
+                                                  return config || $q.when(config);           
+                                      },
+                                 
+                                      requestError: function (rejection) {
+                                                  $('#loading-id').hide();
+                                          return $q.reject(rejection);
+                                      },
+                                 
+                                      // On response success
+                                      response: function (response) {
+                                                  $('#loading-id').hide();
+                                          return response || $q.when(response);
+                                      },
+                                 
+                                      // On response failture
+                                      responseError: function (rejection) {
+                                                  $('#loading-id').hide();
+                                          return $q.reject(rejection);
+                                      }
+                                    };
+                  })
+                   .config(function ($httpProvider) {
+                                   $httpProvider.interceptors.push('MyHttpInterceptor');  
+                   });
 </script>
 
 <script type="text/javascript" src="agora-angular-manage-subscription.js"></script>
