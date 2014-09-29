@@ -15,7 +15,10 @@
 	<script type="text/javascript" src="js-lib/angular.treeview.js"></script>
 	<script type="text/javascript" src="js-lib/ng-context-menu.js"></script>
 	<script type="text/javascript" src="js-lib/ng-dialog/js/ngDialog.min.js"></script>
-
+	<script type="text/javascript" src="js-lib/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="js-lib/dataTables.fixedColumns.js"></script>
+	<script type="text/javascript" src="js-lib/dataTables.fixedHeader.js"></script>
+	<script type="text/javascript" src="js-lib/angular-datatables.js"></script>
 	<script type="text/javascript" src="js-lib/firebugx.js"></script>
 	<script type="text/javascript" src="js-lib/jquery-ui-1.8.16.custom.min.js"></script>
 	<script type="text/javascript" src="js-lib/jquery.event.drag-2.2.js"></script>
@@ -280,13 +283,16 @@
 				 				</tr>
 			 				</table>
 			 			</div>
-						<div  style ="float: left; width: 100%; height:450px; overflow:scroll;" class="dwrapper tab-pane" id="oRates">
+						<div  style ="float: left; width: 100%;" class="dwrapper tab-pane" id="oRates">
 							<div ng-controller="sheet">
-								<table class="ExcelTable2007">
+								<table datatable="ng" dt-options="dtOptions" class="ExcelTable2007">
+									<thead>
 									<tr class="column-label">
 								      <td></td>
 								      <td  class="heading" ng-repeat="column in columns">{{column}}</td>
 								    </tr>
+								    </thead>
+								    <tbody>
 								    <tr  class="column-grid table-input" ng-repeat="row in rows" >
 								      <td style = "overflow-x: auto; overflow-y: hidden;" class="row-label heading"">{{row.Y_names}}</td>
 								      <td><input ng-blur="save('LeaderBoard', row, row.LeaderBoard)" ng-model="row.LeaderBoard"></input></td>
@@ -327,6 +333,7 @@
 								      <td><input ng-blur="save('Pdt_List', row, row.Pdt_List)" ng-model="row.Pdt_List"></input></td>
 								      <td><input ng-blur="save('Insert_Footer', row, row.Insert_Footer)" ng-model="row.Insert_Footer"></input></td> 
 								    </tr>
+								    </tbody>
 							  	</table>
 						  	</div>	
 						</div>
@@ -495,7 +502,7 @@ function isFile() {
     	position: 'top',
     	persist_tab: false
   	});
-  angular.module('agora', ['angularTreeview', 'ng-context-menu' ,'ngDialog', 'ngTable', 'angularFileUpload']);
+  angular.module('agora', ['angularTreeview', 'ng-context-menu' ,'ngDialog', 'ngTable', 'angularFileUpload','datatables']);
 </script>
 
 <script type="text/javascript" src="agora-angular-manage-subscription.js"></script>

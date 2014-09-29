@@ -17,6 +17,21 @@ angular.module('agora')
 		$scope.valueMap;
 		$scope.orates_id = null;
 		
+		// Jagbir Change for freeze row col - start
+		$scope.dtOptions = {
+				paging: false,
+				scrollY: '600px',
+				scrollX: "100%",
+				searching: false,
+				ordering: false,
+				scrollCollapse: true,
+		}
+		
+		$scope.$on('event:dataTableLoaded', function(event, loadedDT) {
+		   new $.fn.dataTable.FixedColumns(loadedDT.dt );
+		   $('.dataTables_scrollBody').find('.column-label').hide();
+		});
+		// Jagbir Change for freeze row col - end
 		$scope.upload = {
 				file:''
 		};
