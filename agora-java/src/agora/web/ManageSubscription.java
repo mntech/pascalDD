@@ -21,8 +21,10 @@ import org.springframework.web.multipart.MultipartFile;
 import agora.dao.ManageSubscriptionDao;
 import agora.dao.MediaInfoDao;
 import agora.dao.OratesInfoDao;
+import agora.dao.PratesInfoDao;
 import agora.model.MediaInfo;
 import agora.model.OratesInfo;
+import agora.model.PratesInfo;
 import agora.model.Subscription;
 
 @Controller
@@ -36,6 +38,10 @@ public class ManageSubscription {
 
 	@Autowired
 	private OratesInfoDao oratesInfoDao;
+	
+	@Autowired
+	private PratesInfoDao pratesInfoDao;
+
 	
 	@RequestMapping(value = "/manage-subscription", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('Agora_Admin')")
@@ -52,7 +58,6 @@ public class ManageSubscription {
 		
 		MediaInfo sb = mediaInfoDao.findMediaInfoDetailByIdaAndName(id, title);
 		subID = sb.getId();
-		System.out.println(subID+"---");
 		return sb;
 	}
 
@@ -160,6 +165,15 @@ public class ManageSubscription {
 			oratesInfoDao.saveOratesInfo(orates);
 		}
 		
+		//Save into Prates Table
+		PratesInfo prates = new PratesInfo();
+		List<String> prates_yName = getPratesYnameList();
+		for(int i = 0; i<prates_yName.size(); i++){
+			prates.setPrates_Yname(prates_yName.get(i));
+			prates.setSubscription(subs);
+			pratesInfoDao.savePratesInfo(prates);
+		}
+		
 		SubcriptionClass sb = new SubcriptionClass();
 		sb.subscriptionId = subs.parent_id;
 		sb.count = 0;
@@ -175,6 +189,13 @@ public class ManageSubscription {
 	public SubcriptionClass deleteCompany(@PathVariable Integer subId) {
 		Subscription _sb = subscriptionDao.findSubscriptionDetailById(subId);
 		List<Subscription> sub = subscriptionDao.findSubscriptionAllObjectById(subId);
+		
+		pratesInfoDao.deletePratesDataById(subId);
+		if(sub.size() != 0){
+			for(Subscription subs : sub){
+				pratesInfoDao.deletePratesDataById(subs.id);
+			}
+		}
 		
 		oratesInfoDao.deleteOratesDataById(subId);
 		if(sub.size() != 0){
@@ -245,6 +266,16 @@ public class ManageSubscription {
 				oratesInfoDao.saveOratesInfo(orates);
 			}
 			
+		
+			//Save into Prates Table
+			PratesInfo prates = new PratesInfo();
+			List<String> prates_yName = getPratesYnameList();
+			for(int i = 0; i<prates_yName.size(); i++){
+				prates.setPrates_Yname(prates_yName.get(i));
+				prates.setSubscription(subs);
+				pratesInfoDao.savePratesInfo(prates);
+			}
+			
 			SubcriptionClass sb = new SubcriptionClass();
 			sb.subscriptionId = s.id;
 			sb.collapsed = false;
@@ -282,11 +313,9 @@ public class ManageSubscription {
 	@PreAuthorize("hasRole('Agora_Admin')")
 	@ResponseBody
 	public FileSystemResource getImagePath(@PathVariable Integer id) {
-		System.out.println(id);
 		if(id != null){
 			MediaInfo mI = mediaInfoDao.getMediainfoById(id);
 			String filepath = mediaInfoDao.getImagePathByIdForThumbnail(id, mI.getImage_name());
-			System.out.println(filepath);
 			FileSystemResource f = new FileSystemResource(new File(filepath));
 			return f;
 		}else{
@@ -336,50 +365,50 @@ public class ManageSubscription {
 		yName.add("4-page bound ");
 		
 		return yName;
-		
 	}
+
 	@RequestMapping(value = "/getXnamelist", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('Agora_Admin')")
 	@ResponseBody
 	public List<String> getXnamelist() {
-	List<String> xName = new ArrayList();
-	xName.add("LeaderBoard");
-	xName.add("Banner");
-	xName.add("Skyscraper");
-	xName.add("Sponsored_Links_ROS");
-	xName.add("Interstitial_Pop_Up");
-	xName.add("Page_Peel");
-	xName.add("Page_Push");
-	xName.add("Video_Ad");
-	xName.add("Logo");
-	xName.add("Box_Ad");
-	xName.add("Sponsor_Posts_per_post");
-	xName.add("Small_Box");
-	xName.add("Marketplace");
-
-	xName.add("Custom");
-	xName.add("Text_Ads");
-	xName.add("Featured_Products");
-	xName.add("Text_65_Words");
-	xName.add("Button");
-	xName.add("Box");
-	xName.add("Rectangle");
+		List<String> xName = new ArrayList();
+		xName.add("LeaderBoard");
+		xName.add("Banner");
+		xName.add("Skyscraper");
+		xName.add("Sponsored_Links_ROS");
+		xName.add("Interstitial_Pop_Up");
+		xName.add("Page_Peel");
+		xName.add("Page_Push");
+		xName.add("Video_Ad");
+		xName.add("Logo");
+		xName.add("Box_Ad");
+		xName.add("Sponsor_Posts_per_post");
+		xName.add("Small_Box");
+		xName.add("Marketplace");
 	
-	xName.add("e_solution_Broadcast");
-	xName.add("Footer");
-	xName.add("Top_position");
-	xName.add("Button_footer");
-	xName.add("Showcase");
-	xName.add("Banner_Footer");
-	xName.add("Featured_Profile_Pdt");
-	
-	xName.add("large_rectangle");
-	xName.add("e_solution_Broadcast_Footer");
-	xName.add("Hosting");
-	xName.add("Exhibit_Hall");
-	xName.add("Pdt_List");
-	xName.add("Insert_Footer");
-	return xName;	
+		xName.add("Custom");
+		xName.add("Text_Ads");
+		xName.add("Featured_Products");
+		xName.add("Text_65_Words");
+		xName.add("Button");
+		xName.add("Box");
+		xName.add("Rectangle");
+		
+		xName.add("e_solution_Broadcast");
+		xName.add("Footer");
+		xName.add("Top_position");
+		xName.add("Button_footer");
+		xName.add("Showcase");
+		xName.add("Banner_Footer");
+		xName.add("Featured_Profile_Pdt");
+		
+		xName.add("large_rectangle");
+		xName.add("e_solution_Broadcast_Footer");
+		xName.add("Hosting");
+		xName.add("Exhibit_Hall");
+		xName.add("Pdt_List");
+		xName.add("Insert_Footer");
+		return xName;	
 	}
 	
 	
@@ -401,4 +430,92 @@ public class ManageSubscription {
 		return "sucess";
 	}
 
+	
+	//Prates Info work
+	
+	@RequestMapping(value = "/savePratesData/{column_name}/{row_name}/{id}/{value}", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('Agora_Admin')")
+	@ResponseBody
+	public String savePratesData(@PathVariable String column_name, @PathVariable String row_name, @PathVariable Integer id, @PathVariable String value ) {
+		String prates_Yname = row_name.replace("BY", "/");
+		pratesInfoDao.savePratesDataByRowColumn_Name(column_name, prates_Yname,  id, value);
+		return "sucess";
+	}
+	
+	@RequestMapping(value = "/getPratesDataById/{id}", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('Agora_Admin')")
+	@ResponseBody
+	public List<PratesInfo> getPratesDataById(@PathVariable Integer id) {
+		return pratesInfoDao.findPratesInfoAllObject(id);
+		
+		
+	}
+	
+	@RequestMapping(value = "/getPratesXnamelist", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('Agora_Admin')")
+	@ResponseBody
+	public List<String> getPratesXnamelist() {
+		List<String> prates_Xname = new ArrayList();
+		prates_Xname.add("W");
+		prates_Xname.add("H");
+		prates_Xname.add("1X");
+		prates_Xname.add("3X");
+		prates_Xname.add("6X");
+		prates_Xname.add("12X");
+		prates_Xname.add("18X");
+		prates_Xname.add("24X");
+		prates_Xname.add("36");
+		prates_Xname.add("metallic");
+		prates_Xname.add("standard");
+		prates_Xname.add("matched");
+		prates_Xname.add("four_color");
+		return prates_Xname;	
+	}
+	
+	public List<String> getPratesYnameList(){
+		List<String> prates_yname = new ArrayList();
+		prates_yname.add("Full Page- B&W");
+		prates_yname.add("2/3 Page- B&W");
+		prates_yname.add("1/2 Page Vert-B&W");
+		prates_yname.add("1/2 Page Island-B&W");
+		prates_yname.add("1/2 Page Horz-B&W");
+		prates_yname.add("1/3 Page Vert-B&W");
+		prates_yname.add("1/3 Page Sq-B&W");
+		prates_yname.add("1/4 Page-B&W");
+		prates_yname.add("Full Page-C");
+		prates_yname.add("2/3 Page-C");
+		prates_yname.add("1/2 Page Vert-C");
+		prates_yname.add("1/2 Page Island-C");
+		prates_yname.add("1/2 Page Horz-C");
+		prates_yname.add("1/3 Page Vert-C");
+
+		prates_yname.add("1/4 Page-C");
+		prates_yname.add("Trim size");
+		prates_yname.add("Bleed");
+		prates_yname.add("Live Matter");
+		prates_yname.add("Spread Size");
+		prates_yname.add("Bleed (Spread)");
+		prates_yname.add("Cover 2");
+		
+
+		prates_yname.add("Cover 3");
+		prates_yname.add("Cover 4");
+		prates_yname.add("Prefered Pos*");
+		prates_yname.add("Double Page Spread");
+		prates_yname.add("Quarter Page");
+		prates_yname.add("Special Positions");
+		prates_yname.add("Covers and opposite contents");
+		prates_yname.add("Facing editorial");
+
+		prates_yname.add("IFC(B/W)");
+		prates_yname.add("IFC(4Colour)");
+		prates_yname.add("OBC(B/W)");
+		prates_yname.add("OBC(4Colour)");
+		prates_yname.add("IBC(B/W)");
+		prates_yname.add("IBC(4Colour)");
+		prates_yname.add("TOC(B/W)");
+		prates_yname.add("TOC(4Colour)");
+		return prates_yname;
+	}
+	
 }

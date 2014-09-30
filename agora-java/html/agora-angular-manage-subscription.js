@@ -1,108 +1,7 @@
-angular.module('agora').directive(
-            "repeatComplete",
-            function( $rootScope ) {
- 
-                // Because we can have multiple ng-repeat directives in
-                // the same container, we need a way to differentiate
-                // the different sets of elements. We'll add a unique ID
-                // to each set.
-                var uuid = 0;
- 
- 
-                // I compile the DOM node before it is linked by the
-                // ng-repeat directive.
-                function compile( tElement, tAttributes ) {
- 
-                    // Get the unique ID that we'll be using for this
-                    // particular instance of the directive.
-                    var id = ++uuid;
- 
-                    // Add the unique ID so we know how to query for
-                    // DOM elements during the digests.
-                    tElement.attr( "repeat-complete-id", id );
- 
-                    // Since this directive doesn't have a linking phase,
-                    // remove it from the DOM node.
-                    tElement.removeAttr( "repeat-complete" );
- 
-                    // Keep track of the expression we're going to
-                    // invoke once the ng-repeat has finished
-                    // rendering.
-                    var completeExpression = tAttributes.repeatComplete;
- 
-                    // Get the element that contains the list. We'll
-                    // use this element as the launch point for our
-                    // DOM search query.
-                    var parent = tElement.parent();
- 
-                    // Get the scope associated with the parent - we
-                    // want to get as close to the ngRepeat so that our
-                    // watcher will automatically unbind as soon as the
-                    // parent scope is destroyed.
-                    var parentScope = ( parent.scope() || $rootScope );
- 
-                    // Since we are outside of the ng-repeat directive,
-                    // we'll have to check the state of the DOM during
-                    // each $digest phase; BUT, we only need to do this
-                    // once, so save a referene to the un-watcher.
-                    var unbindWatcher = parentScope.$watch(
-                        function() {
- 
-                            console.info( "Digest running." );
- 
-                            // Now that we're in a digest, check to see
-                            // if there are any ngRepeat items being
-                            // rendered. Since we want to know when the
-                            // list has completed, we only need the last
-                            // one we can find.
-                            var lastItem = parent.children( "*[ repeat-complete-id = '" + id + "' ]:last" );
- 
-                            // If no items have been rendered yet, stop.
-                            if ( ! lastItem.length ) {
- 
-                                return;
- 
-                            }
- 
-                            // Get the local ng-repeat scope for the item.
-                            var itemScope = lastItem.scope();
- 
-                            // If the item is the "last" item as defined
-                            // by the ng-repeat directive, then we know
-                            // that the ng-repeat directive has finished
-                            // rendering its list (for the first time).
-                            if ( itemScope.$last ) {
- 
-                                // Stop watching for changes - we only
-                                // care about the first complete rendering.
-                                unbindWatcher();
- 
-                                // Invoke the callback.
-                                itemScope.$eval( completeExpression );
- 
-                            }
- 
-                        }
-                    );
- 
-                }
- 
-                // Return the directive configuration. It's important
-                // that this compiles before the ngRepeat directive
-                // compiles the DOM node.
-                return({
-                    compile: compile,
-                    priority: 1001,
-                    restrict: "A"
-                });
- 
-            }
-        );
-
 angular.module('agora')
 	.controller('SubscriptionController',function($scope, $http, ngDialog, $upload){
 		
-		$scope.roleList ;
+		$scope.roleList = [] ;
 		$scope.success=false;
 		$scope.failure=false;
 		$scope.isSubscription=false;
@@ -114,9 +13,14 @@ angular.module('agora')
 		$scope.originalImagePath;
 		$scope.img;
 		$scope.X_names;
+		$scope.prates_xNames;
+		$scope.prates_yNames;
 		$scope.Y_names;
 		$scope.valueMap;
 		$scope.orates_id = null;
+		$scope.prates_id = null;
+		
+		
 		
 		// Jagbir Change for freeze row col - start
 		$scope.dtOptions = {
@@ -133,6 +37,9 @@ angular.module('agora')
 		   $('.dataTables_scrollBody').find('.column-label').hide();
 		});
 		// Jagbir Change for freeze row col - end
+		
+		
+		
 		$scope.upload = {
 				file:''
 		};
@@ -141,6 +48,8 @@ angular.module('agora')
 		        	
 		        	if($scope.orates_id != null){
 		        		sheet();
+		        	}else if( $scope.prates_id != null){
+		        		pratessheet();
 		        	}else{
 		        		loadSubSubscription($scope.mytree.currentNode);
 		        	}
@@ -223,7 +132,7 @@ angular.module('agora')
 		$scope.onCompanyAdd  = function() {
 			$scope.newSubscription = {
 					title: "",
-			}
+			};
 			$scope.mode = "add";
 			ngDialog.open({
 				template: 'add-edit-company.html',
@@ -253,6 +162,7 @@ angular.module('agora')
 			} else {
 				$http.post("saveParentCompany" , $scope.newSubscription).success(function(data) {
 					$scope.subscription = data;
+					console.log(data);
 					$scope.roleList.push(data);
 					$scope.resetEditUserId();
 				});
@@ -261,15 +171,66 @@ angular.module('agora')
 		};
 		$scope.inableOrates = function () {
 			$scope.orates_id = 1;
+			 $scope.prates_id = null;
+			 if($scope.mytree.currentNode != null){
+				 sheet();
+			 };
 		};
 		
 		$scope.disabledOrates = function () {
 			$scope.orates_id = null;
 		};
+		
+		$scope.inablePrates = function() {
+			$scope.orates_id = null;
+			$scope.prates_id = 1;
+			if($scope.mytree.currentNode != null){
+				pratessheet();
+			};
+		};
+		pratessheet = function( $parse) {
+			console.log($scope.prates_id);
+			$http.get("getPratesXnamelist")
+			.success(function(data) {
+				$scope.prates_xNames = data;
+				var id = 1;
+				if($scope.mytree.currentNode != null){
+					id = $scope.mytree.currentNode.subscriptionId;
+				}else{
+					return null;
+				}
+				$http.get("getPratesDataById/"+id)
+				.success(function(_data) {
+					console.log(_data);	
+					
+			$scope.pratesColumns =[];
+			for(var j =0; j<$scope.prates_xNames.length;j++){
+				$scope.pratesColumns.push($scope.prates_xNames[j]);
+			}
+			var x =$scope.prates_xNames[0];
+		    $scope.pratesRows = _data; 
+		    $scope.cells = {};
+		    /*for(var i =0; i<_data.length;i++){
+		    	$scope.rows.push(_data[i].Y_names);
+		    	for(var j =0; j<$scope.X_names.length;j++){
+		    		$scope.cells.push(_data[i]);
+				}
+		    }*/
+		    process = function(exp) {
+		      return exp.replace(/[A-Z]\d+/, function(ref) {
+		        return 'compute("' + ref + '")';
+		      })
+		    }
+		    $scope.compute = function(cell) {
+		      return $parse(process($scope.cells[cell]))($scope);
+		    };
+			});
+			});
+		  };
 		sheet = function( $parse) {
+			console.log($scope.orates_id);
 			$http.get("getXnamelist")
 			.success(function(data) {
-				console.log(data);
 				$scope.X_names = data;
 				
 				var id = 1;
@@ -280,7 +241,6 @@ angular.module('agora')
 				}
 				$http.get("getMatrixDataById/"+id)
 				.success(function(_data) {
-					
 			$scope.columns =[];
 			for(var j =0; j<$scope.X_names.length;j++){
 				$scope.columns.push($scope.X_names[j]);
@@ -308,6 +268,14 @@ angular.module('agora')
 		
 		$scope.save = function(column, row, value) {
 			$http.post("saveMatrixData/"+column+"/"+row.Y_names+"/"+row.subscription.id+"/"+value).success(function(data) {
+				console.log(data);
+			});
+		};
+		
+		
+		$scope.savePrates = function(column, row, value) {
+			var prates_Yname = (row.prates_Yname).replace("/", "BY");
+			$http.post("savePratesData/"+column+"/"+prates_Yname+"/"+row.subscription.id+"/"+value).success(function(data) {
 				console.log(data);
 			});
 		};

@@ -62,7 +62,7 @@
 		.cell-title {
 	    	font-weight: bold;
 	    }
-		.table-input > td > input  { border: none;height:20px}
+		.table-input > td > input  { border: none;height:20px; font: 300 11px helvetica neue, helvetica, arial, sans-serif;}
 	    .cell-effort-driven {
 	    	text-align: center;
 	    }
@@ -182,7 +182,7 @@
 		<div id="subscription-tab ">
 			<div ng-init="loadmedia()">
 				<div style = "float:left; background:white;" >
-				<button style = "float: right;" type="button" class="glyphicon glyphicon-chevron-right" ng-model="collapsed" ng-click="collapsed=!collapsed"> </button>
+				<button style = "float: right !important; background: #E4ECF7;" type="button" class=" glyphicon glyphicon-list pull-left" ng-model="collapsed" ng-click="collapsed=!collapsed"> </button>
 					<div ng-hide="collapsed">	
 				 		<div context-menu="onParentAdd();"  class=" position-fixed" data-target="myParentMenu" ng-class="{ 'highlight': highlight, 'expanded' : expanded }"  data-ng-class="node.selected" style = "background: white; padding-left: 2%;" >
 					 		<ul>
@@ -191,7 +191,7 @@
 								</li>
 				      		</ul>
 			      		</div>
-					 	<div  style="background-color: white; padding-top: 2%; width:250px;float: left;border-right: 2px solid black;"
+					 	<div  style="background-color: white; padding-top: 2%; width:250px;float: left;border-right: 2px solid black; height:500px;"
 		 		      			data-angular-treeview="true"
 				      			data-tree-id="mytree"
 				      			data-node-id="id"
@@ -203,10 +203,10 @@
 			     	<div>
 					<div style= "height: 50px">
 						<ul class="nav nav-tabs custom-nov" role="tablist" id="myTab">
-						  <li class="active"><a ng-click = "disabledOrates()" href="#home" role="tab" data-toggle="tab"  style = "background: rgb(153,204,255);">Media Info</a></li>
-						  <li><a ng-click = "inableOrates()" href="#oRates" role="tab" data-toggle="tab" style = "background: rgb(153,204,255);">O' Rates</a></li>
-						  <li><a ng-click = "disabledOrates()" href="#pRates" role="tab" data-toggle="tab" style = "background: rgb(153,204,255);">P' Rates</a></li>
-						  <li><a ng-click = "disabledOrates()" href="#addSpec" role="tab" data-toggle="tab" style = "background: rgb(153,204,255);">Ad' Spec</a></li>
+						  <li class="active"><a ng-click = "disabledOrates()" href="#home" role="tab" data-toggle="tab"  style = "background: #E4ECF7;">Media Info</a></li>
+						  <li><a ng-click = "inableOrates()" href="#oRates" role="tab" data-toggle="tab" style = "background: #E4ECF7;">O' Rates</a></li>
+						  <li><a ng-click = "inablePrates()" href="#pRates" role="tab" data-toggle="tab" style = "background: #E4ECF7;">P' Rates</a></li>
+						  <li><a ng-click = "disabledOrates()" href="#addSpec" role="tab" data-toggle="tab" style = "background: #E4ECF7;">Ad' Spec</a></li>
 						</ul>
 					</div>
 					<div class="tab-content">
@@ -361,7 +361,36 @@
 							  	</table>
 						  	</div>	
 						</div>
-	  					<div class="tab-pane" id="pRates">
+	  					<div  style ="float: left; width: 99%;" class="dwrapper tab-pane"  id="pRates">
+	  						<div ng-controller="pratessheet">
+								<table datatable="ng" dt-options="dtOptions" class="ExcelTable2007">
+									<thead>
+									<tr class="column-label">
+								      <td></td>
+								      <td  class="heading" ng-repeat="pcolumn in pratesColumns" style="">{{pcolumn}}</td>
+								    </tr>
+								    </thead>
+								    <tbody>
+								    <tr style="height: 38px !important"  class="column-grid table-input" ng-repeat="row in pratesRows" >
+								      <td style = " overflow-x: auto; overflow-y: hidden;" class="row-label heading"">{{row.prates_Yname}}</td>
+								      <td><input ng-blur="savePrates('W', row, row.W)" ng-model="row.W"></input></td>
+								      <td><input ng-blur="savePrates('H', row, row.H)" ng-model="row.H"></input></td>
+								      <td><input ng-blur="savePrates('oneX', row, row.1X)" ng-model="row.1X"></input></td>
+								      <td><input ng-blur="savePrates('threeX', row, row.3X)" ng-model="row.3X"></input></td>
+								      <td><input ng-blur="savePrates('sixX', row, row.6X)" ng-model="row.6X"></input></td>
+								      <td><input ng-blur="savePrates('twelveX', row, row.12X)" ng-model="row.12X"></input></td>
+								      <td><input ng-blur="savePrates('eighteenX', row, row.18X)" ng-model="row.18X"></input></td>
+								      
+								      <td><input ng-blur="savePrates('twentyFourX', row, row.24X)" ng-model="row.24X"></input></td>
+								      <td><input ng-blur="savePrates('thirtySixX', row, row.36X)" ng-model="row.36X"></input></td>
+								      <td><input ng-blur="savePrates('metallic', row, row.metallic)" ng-model="row.metallic"></input></td>
+								      <td><input ng-blur="savePrates('standard', row, row.standard)" ng-model="row.standard"></input></td>
+								      <td><input ng-blur="savePrates('matched', row, row.matched)" ng-model="row.matched"></input></td>
+								      <td><input ng-blur="savePrates('four_color', row, row.four_color)" ng-model="row.four_color"></input></td>
+								    </tr>
+								    </tbody>
+							  	</table>
+						  	</div>
 						</div>
 	  					<div class="tab-pane" id="addSpec">
 	  					</div>
