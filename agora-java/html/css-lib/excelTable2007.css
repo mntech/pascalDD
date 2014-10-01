@@ -36,8 +36,7 @@
 	text-align: center;
 	border: 1px solid #9EB6CE;
 	border-width: 0px 1px 1px 0px;
-	width: 101px !important;
-	float: left;
+	font-size: smaller;
 }
 
 .ExcelTable2007 th.heading {

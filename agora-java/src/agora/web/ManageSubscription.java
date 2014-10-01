@@ -372,42 +372,42 @@ public class ManageSubscription {
 	@ResponseBody
 	public List<String> getXnamelist() {
 		List<String> xName = new ArrayList();
-		xName.add("LeaderBoard");
+		xName.add("L-Board");
 		xName.add("Banner");
 		xName.add("Skyscraper");
-		xName.add("Sponsored_Links_ROS");
-		xName.add("Interstitial_Pop_Up");
-		xName.add("Page_Peel");
-		xName.add("Page_Push");
-		xName.add("Video_Ad");
+		xName.add("SponsorLinksROS");
+		xName.add("Inter-PopUp");
+		xName.add("PagePeel");
+		xName.add("PagePush");
+		xName.add("VideoAd");
 		xName.add("Logo");
-		xName.add("Box_Ad");
-		xName.add("Sponsor_Posts_per_post");
+		xName.add("BoxAd");
+		xName.add("SponsorPerPost");
 		xName.add("Small_Box");
 		xName.add("Marketplace");
 	
 		xName.add("Custom");
 		xName.add("Text_Ads");
-		xName.add("Featured_Products");
-		xName.add("Text_65_Words");
+		xName.add("FeatureProducts");
+		xName.add("Text65Words");
 		xName.add("Button");
 		xName.add("Box");
 		xName.add("Rectangle");
 		
-		xName.add("e_solution_Broadcast");
+		xName.add("eSol-Broadcast");
 		xName.add("Footer");
-		xName.add("Top_position");
-		xName.add("Button_footer");
+		xName.add("TopPosition");
+		xName.add("ButtonFooter");
 		xName.add("Showcase");
-		xName.add("Banner_Footer");
-		xName.add("Featured_Profile_Pdt");
+		xName.add("BannerFooter");
+		xName.add("FeatureProfilePdt");
 		
 		xName.add("large_rectangle");
-		xName.add("e_solution_Broadcast_Footer");
+		xName.add("eSol-BCFooter");
 		xName.add("Hosting");
-		xName.add("Exhibit_Hall");
-		xName.add("Pdt_List");
-		xName.add("Insert_Footer");
+		xName.add("ExhibitHall");
+		xName.add("PdtList");
+		xName.add("InsertFooter");
 		return xName;	
 	}
 	

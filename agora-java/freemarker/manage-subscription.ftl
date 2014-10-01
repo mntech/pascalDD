@@ -47,9 +47,7 @@
   
     	.column-grid  >  td { 
     		border: 1px solid #EEE;
-    		width: 101px;
-			float: left;
-			height: 40px;
+    		
 		}
   		.column-label  > td, .row-label {
     		text-align: center;
@@ -67,7 +65,7 @@
 		.cell-title {
 	    	font-weight: bold;
 	    }
-		.table-input > td > input  { width: 97px; border: none;height:20px; font: 300 11px helvetica neue, helvetica, arial, sans-serif;}
+		.table-input > td > input  {margin-bottom: 10px !important; width:75px; border: none;height:20px; font: 300 11px helvetica neue, helvetica, arial, sans-serif;}
 	    .cell-effort-driven {
 	    	text-align: center;
 	    }
@@ -314,15 +312,15 @@
 			 			</div>
 						<div  style ="float: left; width: 99%;" class="dwrapper tab-pane" id="oRates">
 							<div ng-controller="sheet">
-								<table style = "width: 3440px !important; float: left  !important;" datatable="ng" dt-options="dtOptions" class="ExcelTable2007">
+								<table   datatable="ng" dt-options="dtOptions" class="ExcelTable2007">
 									<thead>
 									<tr class="column-label">
-								      <td></td>
+										<td></td>	
 								      <td  class="heading" ng-repeat="column in columns">{{column}}</td>
 								    </tr>
 								    </thead>
 								    <tbody>
-								    <tr style="height: 38px !important"  class="column-grid table-input" ng-repeat="row in rows" >
+								    <tr style="height: 35px !important"  class="column-grid table-input" ng-repeat="row in rows" >
 								      <td style = "overflow-x: auto; overflow-y: hidden;" class="row-label heading"">{{row.Y_names}}</td>
 								      <td><input ng-blur="save('LeaderBoard', row, row.LeaderBoard)" ng-model="row.LeaderBoard"></input></td>
 								      <td><input ng-blur="save('Banner', row, row.Banner)" ng-model="row.Banner"></input></td>
@@ -368,7 +366,7 @@
 						</div>
 	  					<div  style ="float: left; width: 99%;" class="dwrapper tab-pane"  id="pRates">
 	  						<div ng-controller="pratessheet">
-								<table style = "width: 1417px !important; float: left  !important;" datatable="ng" dt-options="dtOptions" class="ExcelTable2007">
+								<table  datatable="ng" dt-options="dtOptions" class="ExcelTable20071">
 									<thead>
 									<tr class="column-label">
 								      <td></td>

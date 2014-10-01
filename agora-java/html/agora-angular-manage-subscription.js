@@ -31,16 +31,19 @@ angular.module('agora')
 				searching: false,
 				ordering: false,
 				scrollCollapse: true,
+				autoWidth: false
 		}
 		
+		
 		$scope.$on('event:dataTableLoaded', function(event, loadedDT) {
-		   new $.fn.dataTable.FixedColumns(loadedDT.dt );
+			loadedDT.dt.columns.adjust().draw();
+			
+			
+			new $.fn.dataTable.FixedColumns(loadedDT.dt);
+			
 		   $('.dataTables_scrollBody').find('.column-label').hide();
 		});
 		// Jagbir Change for freeze row col - end
-		
-		
-		
 		$scope.upload = {
 				file:''
 		};
@@ -163,7 +166,6 @@ angular.module('agora')
 			} else {
 				$http.post("saveParentCompany" , $scope.newSubscription).success(function(data) {
 					$scope.subscription = data;
-					console.log(data);
 					$scope.roleList.push(data);
 					$scope.resetEditUserId();
 				});
@@ -237,19 +239,20 @@ angular.module('agora')
 			});
 		  };
 		sheet = function( $parse) {
-			console.log($scope.orates_id);
 			$http.get("getXnamelist")
 			.success(function(data) {
+				//console.log(data);
 				$scope.X_names = data;
 				
 				var id = 1;
 				if($scope.mytree.currentNode != null){
 					id = $scope.mytree.currentNode.subscriptionId;
-				}else{
+				} else {
 					return null;
 				}
 				$http.get("getMatrixDataById/"+id)
 				.success(function(_data) {
+					
 			$scope.columns =[];
 			for(var j =0; j<$scope.X_names.length;j++){
 				$scope.columns.push($scope.X_names[j]);
@@ -277,7 +280,7 @@ angular.module('agora')
 		
 		$scope.save = function(column, row, value) {
 			$http.post("saveMatrixData/"+column+"/"+row.Y_names+"/"+row.subscription.id+"/"+value).success(function(data) {
-				console.log(data);
+			
 			});
 		};
 		
@@ -285,7 +288,7 @@ angular.module('agora')
 		$scope.savePrates = function(column, row, value) {
 			var prates_Yname = (row.prates_Yname).replace("/", "BY");
 			$http.post("savePratesData/"+column+"/"+prates_Yname+"/"+row.subscription.id+"/"+value).success(function(data) {
-				console.log(data);
+				
 			});
 		};
 		$scope.onCompanyDelete = function () {
