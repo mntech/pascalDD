@@ -366,7 +366,7 @@
 						</div>
 	  					<div  style ="float: left; width: 99%;" class="dwrapper tab-pane"  id="pRates">
 	  						<div ng-controller="pratessheet">
-								<table  datatable="ng" dt-options="dtOptions" class="ExcelTable20071">
+								<table  datatable="ng" dt-options="dtOptions" class="ExcelTable2007">
 									<thead>
 									<tr class="column-label">
 								      <td></td>
@@ -374,7 +374,7 @@
 								    </tr>
 								    </thead>
 								    <tbody>
-								    <tr style="height: 38px !important"  class="column-grid table-input" ng-repeat="row in pratesRows" >
+								    <tr  style="height: 35px !important"  class="column-grid table-input" ng-repeat="row in pratesRows" >
 								      <td style = " overflow-x: auto; overflow-y: hidden;" class="row-label heading"">{{row.prates_Yname}}</td>
 								      <td><input ng-blur="savePrates('W', row, row.W)" ng-model="row.W"></input></td>
 								      <td><input ng-blur="savePrates('H', row, row.H)" ng-model="row.H"></input></td>
