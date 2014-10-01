@@ -30,7 +30,7 @@ public class PratesInfoDao {
 	public void savePratesDataByRowColumn_Name(String column_name,
 			String row_name, Integer subId, String value) {
 		System.out.println(value);
-		if(!value.equals("null")){
+		if(!value.equals("null") && !value.equals("undefined")){
 			sf.getCurrentSession().createQuery("update PratesInfo  set "+column_name+" = '"+value+"' where prates_Yname = '"+row_name+"' and subscription_id = '"+subId+"' ").executeUpdate(); 
 		}
 	}

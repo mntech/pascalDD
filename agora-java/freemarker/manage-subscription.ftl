@@ -45,7 +45,12 @@
 	<style>
 		body { font-family: sans-serif; }
   
-    	.column-grid  >  td { border: 1px solid #EEE; }
+    	.column-grid  >  td { 
+    		border: 1px solid #EEE;
+    		width: 101px;
+			float: left;
+			height: 40px;
+		}
   		.column-label  > td, .row-label {
     		text-align: center;
     		background: #EEE;
@@ -62,7 +67,7 @@
 		.cell-title {
 	    	font-weight: bold;
 	    }
-		.table-input > td > input  { border: none;height:20px; font: 300 11px helvetica neue, helvetica, arial, sans-serif;}
+		.table-input > td > input  { width: 97px; border: none;height:20px; font: 300 11px helvetica neue, helvetica, arial, sans-serif;}
 	    .cell-effort-driven {
 	    	text-align: center;
 	    }
@@ -203,7 +208,7 @@
 			     	<div>
 					<div style= "height: 50px">
 						<ul class="nav nav-tabs custom-nov" role="tablist" id="myTab">
-						  <li class="active"><a ng-click = "disabledOrates()" href="#home" role="tab" data-toggle="tab"  style = "background: #E4ECF7;">Media Info</a></li>
+						  <li class="active"><a ng-click = "inableMediaInfo()" href="#home" role="tab" data-toggle="tab"  style = "background: #E4ECF7;">Media Info</a></li>
 						  <li><a ng-click = "inableOrates()" href="#oRates" role="tab" data-toggle="tab" style = "background: #E4ECF7;">O' Rates</a></li>
 						  <li><a ng-click = "inablePrates()" href="#pRates" role="tab" data-toggle="tab" style = "background: #E4ECF7;">P' Rates</a></li>
 						  <li><a ng-click = "disabledOrates()" href="#addSpec" role="tab" data-toggle="tab" style = "background: #E4ECF7;">Ad' Spec</a></li>
@@ -309,7 +314,7 @@
 			 			</div>
 						<div  style ="float: left; width: 99%;" class="dwrapper tab-pane" id="oRates">
 							<div ng-controller="sheet">
-								<table datatable="ng" dt-options="dtOptions" class="ExcelTable2007">
+								<table style = "width: 3440px !important; float: left  !important;" datatable="ng" dt-options="dtOptions" class="ExcelTable2007">
 									<thead>
 									<tr class="column-label">
 								      <td></td>
@@ -363,7 +368,7 @@
 						</div>
 	  					<div  style ="float: left; width: 99%;" class="dwrapper tab-pane"  id="pRates">
 	  						<div ng-controller="pratessheet">
-								<table datatable="ng" dt-options="dtOptions" class="ExcelTable2007">
+								<table style = "width: 1417px !important; float: left  !important;" datatable="ng" dt-options="dtOptions" class="ExcelTable2007">
 									<thead>
 									<tr class="column-label">
 								      <td></td>
@@ -375,14 +380,14 @@
 								      <td style = " overflow-x: auto; overflow-y: hidden;" class="row-label heading"">{{row.prates_Yname}}</td>
 								      <td><input ng-blur="savePrates('W', row, row.W)" ng-model="row.W"></input></td>
 								      <td><input ng-blur="savePrates('H', row, row.H)" ng-model="row.H"></input></td>
-								      <td><input ng-blur="savePrates('oneX', row, row.1X)" ng-model="row.1X"></input></td>
-								      <td><input ng-blur="savePrates('threeX', row, row.3X)" ng-model="row.3X"></input></td>
-								      <td><input ng-blur="savePrates('sixX', row, row.6X)" ng-model="row.6X"></input></td>
-								      <td><input ng-blur="savePrates('twelveX', row, row.12X)" ng-model="row.12X"></input></td>
-								      <td><input ng-blur="savePrates('eighteenX', row, row.18X)" ng-model="row.18X"></input></td>
+								      <td><input ng-blur="savePrates('oneX', row, row.oneX)" ng-model="row.oneX"></input></td>
+								      <td><input ng-blur="savePrates('threeX', row, row.threeX)" ng-model="row.threeX"></input></td>
+								      <td><input ng-blur="savePrates('sixX', row, row.sixX)" ng-model="row.sixX"></input></td>
+								      <td><input ng-blur="savePrates('twelveX', row, row.twelveX)" ng-model="row.twelveX"></input></td>
+								      <td><input ng-blur="savePrates('eighteenX', row, row.eighteenX)" ng-model="row.eighteenX"></input></td>
 								      
-								      <td><input ng-blur="savePrates('twentyFourX', row, row.24X)" ng-model="row.24X"></input></td>
-								      <td><input ng-blur="savePrates('thirtySixX', row, row.36X)" ng-model="row.36X"></input></td>
+								      <td><input ng-blur="savePrates('twentyFourX', row, row.twentyFourX)" ng-model="row.twentyFourX"></input></td>
+								      <td><input ng-blur="savePrates('thirtySixX', row, row.thirtySixX)" ng-model="row.thirtySixX"></input></td>
 								      <td><input ng-blur="savePrates('metallic', row, row.metallic)" ng-model="row.metallic"></input></td>
 								      <td><input ng-blur="savePrates('standard', row, row.standard)" ng-model="row.standard"></input></td>
 								      <td><input ng-blur="savePrates('matched', row, row.matched)" ng-model="row.matched"></input></td>

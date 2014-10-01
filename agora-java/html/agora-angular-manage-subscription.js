@@ -19,6 +19,7 @@ angular.module('agora')
 		$scope.valueMap;
 		$scope.orates_id = null;
 		$scope.prates_id = null;
+		$scope.mediaInfo_id = null;
 		
 		
 		
@@ -50,7 +51,7 @@ angular.module('agora')
 		        		sheet();
 		        	}else if( $scope.prates_id != null){
 		        		pratessheet();
-		        	}else{
+		        	}else {
 		        		loadSubSubscription($scope.mytree.currentNode);
 		        	}
 		    }
@@ -180,7 +181,15 @@ angular.module('agora')
 		$scope.disabledOrates = function () {
 			$scope.orates_id = null;
 		};
-		
+		$scope.inableMediaInfo = function () {
+			$scope.orates_id = null;
+			$scope.prates_id = null;
+			$scope.mediaInfo_id = 1;
+			if($scope.mytree.currentNode != null){
+				loadSubSubscription($scope.mytree.currentNode);
+			};
+			
+		};
 		$scope.inablePrates = function() {
 			$scope.orates_id = null;
 			$scope.prates_id = 1;
