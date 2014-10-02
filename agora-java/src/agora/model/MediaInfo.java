@@ -18,7 +18,7 @@ public class MediaInfo implements java.io.Serializable {
 	public String title = "";
 	private String url = "";
 	private String category;
-	private int subId;
+	private String subId;
 	private String about;
 	private String company;
 	private String primary_language;
@@ -115,11 +115,11 @@ public class MediaInfo implements java.io.Serializable {
 		this.category = category;
 	}
 
-	public int getSubId() {
+	public String getSubId() {
 		return subId;
 	}
 
-	public void setSubId(int subId) {
+	public void setSubId(String subId) {
 		this.subId = subId;
 	}
 
