@@ -20,10 +20,12 @@ import agora.model.MediaInfo;
 @Repository("MediaInfoDao")
 @Transactional
 public class MediaInfoDao {
+	private static final String ORIGINAL_IMAGE = "Original_image.";
+	private static final String LOGO_THUMBNAIL = "Logo_thumbnail.";
 	@Autowired
 	private SessionFactory sf;
-	String rootDir = "/home";
-	String fileExt = null;
+	static String rootDir = "/home/mediasub";//TODO
+	
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sf = sessionFactory;
 	}
@@ -73,15 +75,13 @@ public class MediaInfoDao {
 		
 	}
 	public String saveUploadFile(MultipartFile file, Integer subID) {
-		//AuthUser user = Helper.getCurrentUser();
-		//Facility facility = user.getFacility();
 		String[] fileArr = file.getOriginalFilename().split("\\.");
-		fileExt = fileArr[fileArr.length-1];
+		String fileExt = fileArr[fileArr.length-1];
 	
 		createFacilityDir(rootDir, subID);
 		
-		String fileName = rootDir + File.separator + subID+File.separator+"Logo_thumbnail."+fileExt;
-		String originalFileName = rootDir + File.separator + subID+File.separator+"Original_image."+fileExt;
+		String fileName = rootDir + File.separator + subID + File.separator + LOGO_THUMBNAIL + fileExt;
+		String originalFileName = rootDir + File.separator + subID+File.separator+ORIGINAL_IMAGE + fileExt;
 		try {
 			BufferedImage originalImage = ImageIO.read(file.getInputStream());
 				File f = new File(fileName);
@@ -93,10 +93,8 @@ public class MediaInfoDao {
 				toFile(_f);
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-			System.out.println(fileExt);
 			return fileExt;
 	}
 	
@@ -106,11 +104,11 @@ public class MediaInfoDao {
 			file3.mkdirs();
 		}
 	}
-	public String getImagePathByIdForThumbnail(Integer id, String image_name) {
-		return rootDir + File.separator + id+File.separator+"Logo_thumbnail."+image_name;
+	public String getImagePathByIdForThumbnail(Integer id, String fileExt) {
+		return rootDir + File.separator + id + File.separator + LOGO_THUMBNAIL + fileExt;
 	}
-	public String getImagePathByIdForOriginal(Integer id, String image_name) {
-		return rootDir + File.separator + id+File.separator+"Original_image."+image_name;
+	public String getImagePathByIdForOriginal(Integer id, String fileExt) {
+		return rootDir + File.separator + id + File.separator + ORIGINAL_IMAGE + fileExt;
 		
 	}
 
