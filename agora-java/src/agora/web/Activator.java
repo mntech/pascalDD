@@ -1,13 +1,23 @@
 package agora.web;
 
+import java.io.IOException;
+import java.security.Key;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -15,8 +25,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 import agora.Actions;
 import agora.Json;
 import agora.Role;
@@ -24,7 +38,6 @@ import agora.User;
 import agora.UserDetailsService;
 import agora.dao.SubscriberDao;
 import agora.model.Subscriber;
-
 @Controller
 public class Activator {
 
@@ -535,4 +548,73 @@ public class Activator {
 		public String cp;
 		public String a;
 	}
+
+    @RequestMapping(value="public/isValidSession.m", method=RequestMethod.POST)
+    public void isValidSession(@RequestParam String key, HttpSession session,HttpServletResponse response) {
+    	try {
+
+    		
+			Map m = new HashMap();
+    		Key dkey = generateKey();
+    		
+            Cipher c = Cipher.getInstance("AES");
+            c.init(Cipher.DECRYPT_MODE, dkey);
+            byte[] decordedValue = new BASE64Decoder().decodeBuffer(key);
+            byte[] decValue = c.doFinal(decordedValue);
+            String decryptedValue = new String(decValue);
+    		System.out.println(key+"hhhhhhhhhhhhh "+decryptedValue);
+    		String[] st = decryptedValue.split("-");
+    		String user = st[0];
+    		String password = st[1];
+    		long time = Long.valueOf(st[2]);
+    		long interval = Long.valueOf(System.currentTimeMillis())-time; 
+    		User _user = userDetailsService.getUserByUnamePassword(user, password);
+    		if(_user != null){
+    			response.getOutputStream().println("true");
+    		}else{
+    			response.getOutputStream().println("false");
+    		}
+				
+    		
+	    		
+		}catch(Exception e) { 
+			try {
+				response.getOutputStream().println("false");
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+    	
+    }
+    @RequestMapping(value="/agoraE.m")
+    @PreAuthorize("hasPermission(#user, 'agoraE.m')")
+    public ModelAndView AgoraE(HttpSession session) {
+    	User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    	System.out.println(user.getUsername());
+    	String cipherText =null;
+    	String plainData=user.getUsername()+"-"+user.getPassword()+"-"+System.currentTimeMillis();
+    	byte[] byteCipherText = null;
+    	String encryptedValue = null;
+    	try { 
+    		
+    		Key key = generateKey();
+            Cipher c = Cipher.getInstance("AES");
+            c.init(Cipher.ENCRYPT_MODE, key);
+            byte[] encVal = c.doFinal(plainData.getBytes());
+            encryptedValue = new BASE64Encoder().encode(encVal);
+            
+            
+    		System.out.println("\n Plain Data : "+plainData+" \n Cipher Data : "+encryptedValue);
+    		session.setAttribute("encryptedValue", encryptedValue);
+    		
+    	}
+    	catch(Exception e) { }
+    	Map m = new HashMap();
+    	m.put("key", encryptedValue.replace("+", "%2b"));
+	return new ModelAndView("agoraE", m);
+    }
+    private static Key generateKey() throws Exception {
+        Key key = new SecretKeySpec("TheBestSecretkey".getBytes(), "AES");
+        return key;
+    }
 }

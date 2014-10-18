@@ -197,5 +197,11 @@ public class UserDetailsService implements org.springframework.security.core.use
 		
 	}
 
+	public User getUserByUnamePassword(String user, String password) {
+		User _user =(User) sf.getCurrentSession().createQuery("from User where username = :username and password =:password").
+		setString("username", user).setString("password", password).uniqueResult();
+		return _user;
+	}
+
 	
 }
