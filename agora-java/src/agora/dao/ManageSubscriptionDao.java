@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import agora.model.Subscriber;
 import agora.model.Subscription;
+import agora.web.ManageSubscription.SubcriptionClass;
 
 @Repository("ManageSubscriptionDao")
 @Transactional
@@ -66,6 +67,9 @@ public class ManageSubscriptionDao {
 	}
 	public List<Subscription> findSubscriptionAllObjectById(Integer id) {
 		return (List<Subscription>) sf.getCurrentSession().createQuery("from Subscription where parent_id = "+id).list();
+	}
+	public List<Subscription> getAllSubscription() {
+		return (List<Subscription>) sf.getCurrentSession().createQuery("from Subscription").list();
 	}
 	
 	
